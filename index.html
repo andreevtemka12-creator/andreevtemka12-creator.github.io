@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>БурмалДима</title>
+<meta name="description" content="БурмалДима — игры Апгрейдер, Лудка и Стант">
 <style>
 :root{color-scheme:dark;--bg:#050806;--panel:#0d1410;--line:#1f3a29;--green:#2bff7a;--green2:#12a64a;--text:#e8f5ec;--mute:#7f9a89;--red:#ff4d5e;--gold:#ffd24a;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -104,6 +105,8 @@ svg [fill="#12a64a"]{fill:var(--green2)}
 .idl{text-align:center;color:var(--mute);margin-top:6px}.idl b{color:var(--gold);letter-spacing:.1em}
 .idv{padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);font-size:28px;font-weight:900;letter-spacing:.15em;color:var(--gold);text-align:center}
 @media (prefers-reduced-motion:reduce){.running .st-ground{animation:none}}
+.tabs{display:flex;gap:8px;margin-bottom:14px}.tabs button{flex:1;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--text);font:inherit;font-weight:800;cursor:pointer}.tabs button.on{border-color:var(--green);color:var(--green)}
+.field{margin-bottom:12px}
 </style>
 </head>
 <body>
@@ -171,8 +174,24 @@ svg [fill="#12a64a"]{fill:var(--green2)}
       <button class="back" data-back>Назад</button>
     </div>
     <div id="pvAcc" hidden>
-      <div id="accOff"><p style="color:var(--mute);margin:0 0 14px">Зарегистрируй аккаунт — профиль и баланс будут привязаны к нему и сохранятся.</p><button class="go" id="accReg" style="margin-top:0">Зарегистрировать аккаунт</button></div>
-      <div id="accOn" hidden><div class="field"><label>Твой ID</label><div class="idv" id="accId"></div></div></div>
+      <div id="accOff">
+        <div class="tabs"><button id="tabReg" class="on">Регистрация</button><button id="tabLog">Вход</button></div>
+        <div id="boxReg">
+          <p style="color:var(--mute);margin:0 0 12px">Тебе выдадут ID из 6 цифр. Придумай пароль (минимум 6 символов), с ним можно войти с любого устройства.</p>
+          <div class="field"><label for="regPw">Пароль</label><input id="regPw" type="password" autocomplete="new-password"></div>
+          <button class="go" id="accReg" style="margin-top:0">Создать аккаунт</button>
+        </div>
+        <div id="boxLog" hidden>
+          <div class="field"><label for="logId">ID</label><input id="logId" type="text" inputmode="numeric" maxlength="6" autocomplete="username"></div>
+          <div class="field"><label for="logPw">Пароль</label><input id="logPw" type="password" autocomplete="current-password"></div>
+          <button class="go" id="accLogin" style="margin-top:0">Войти</button>
+        </div>
+        <div class="err" id="accErr"></div>
+      </div>
+      <div id="accOn" hidden>
+        <div class="field"><label>Твой ID (запомни его)</label><div class="idv" id="accId"></div></div>
+        <button class="go" id="accOut" style="margin-top:16px">Выйти</button>
+      </div>
       <button class="back" data-back>Назад</button>
     </div>
     <div id="pvTheme" hidden>
@@ -298,7 +317,6 @@ $("themes").addEventListener("click",function(e){var b=e.target.closest(".th");i
 function accRefresh(){var on=!!acct.id;$("idLine").hidden=!on;$("idV").textContent=acct.id||"";$("accOff").hidden=on;$("accOn").hidden=!on;$("accId").textContent=acct.id||"";$("pAcc").textContent=on?"Аккаунт":"Войти / Зарегистрироваться"}
 function profView(v){["Menu","Name","Theme","Acc"].forEach(function(k){$("pv"+k).hidden=v!==k.toLowerCase()});$("profT").textContent={menu:"Профиль",name:"Изменить имя",theme:"Изменить тему",acc:"Аккаунт"}[v];accRefresh()}
 $("pAcc").onclick=function(){profView("acc")};
-$("accReg").onclick=function(){acct.id=String(100000+Math.floor(Math.random()*900000));saveProf();accRefresh()};
 function openProf(){profView("menu");$("profOv").classList.add("open")}
 $("avatarBtn").onclick=openProf;
 $("avatarBtn").addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();openProf()}});
@@ -309,12 +327,23 @@ $("pTheme").onclick=function(){buildThemes();profView("theme")};
 document.querySelectorAll("[data-back]").forEach(function(b){b.onclick=function(){profView("menu")}});
 $("nameSave").onclick=function(){var n=$("nameIn").value.trim();if(!n){$("nameErr").textContent="Имя не может быть пустым";return}$("uname").textContent=n;saveProf();$("profOv").classList.remove("open")};
 $("nameIn").addEventListener("keydown",function(e){if(e.key==="Enter")$("nameSave").click()});
-var acct={};try{acct=JSON.parse(localStorage.getItem("depka_profile")||"{}")||{}}catch(e){}
-function saveProf(){try{localStorage.setItem("depka_profile",JSON.stringify({name:$("uname").textContent,theme:curTheme,id:acct.id||null,bal:acct.id?balance:0}))}catch(e){}}
+var SB="https://khqvcwfcotplgfmefwnd.supabase.co",KEY="sb_publishable_ckCz0Gj3zGXbWjJK_pLiDg_C9FfFtsr";
+var sess=null;try{sess=JSON.parse(localStorage.getItem("bd_sess")||"null")}catch(e){}
+var acct={id:sess&&sess.id||null},sT=null;
+function sbH(t){var h={"apikey":KEY,"Content-Type":"application/json"};if(t)h.Authorization="Bearer "+t;return h}
+async function sbAuth(path,body){var r=await fetch(SB+"/auth/v1/"+path,{method:"POST",headers:sbH(),body:JSON.stringify(body)});var j=await r.json().catch(function(){return{}});if(!r.ok)throw new Error(j.msg||j.error_description||j.message||"Ошибка");return j}
+function mail(id){return "u"+id+"@burmaldima.app"}
+function setSess(j,id){sess={tok:j.access_token,ref:j.refresh_token,uid:j.user.id,id:id};try{localStorage.setItem("bd_sess",JSON.stringify(sess))}catch(e){}acct.id=id}
+async function pGet(){var r=await fetch(SB+"/rest/v1/profiles?select=*&uid=eq."+sess.uid,{headers:sbH(sess.tok)});if(!r.ok)return null;return (await r.json())[0]||null}
+function pRow(){return {uid:sess.uid,public_id:sess.id,name:$("uname").textContent,theme:curTheme,balance:balance}}
+async function pPut(retry){var r=await fetch(SB+"/rest/v1/profiles?on_conflict=uid",{method:"POST",headers:Object.assign(sbH(sess.tok),{Prefer:"resolution=merge-duplicates,return=minimal"}),body:JSON.stringify(pRow())});
+  if(r.status===401&&!retry){var j=await sbAuth("token?grant_type=refresh_token",{refresh_token:sess.ref});setSess(j,sess.id);return pPut(true)}return r}
+function syncRemote(){if(!sess)return;clearTimeout(sT);sT=setTimeout(function(){pPut().catch(function(){})},600)}
+function applyP(p){if(!p)return;if(p.name)$("uname").textContent=String(p.name).slice(0,20);if(THEMES.some(function(t){return t.k===p.theme})){curTheme=p.theme;document.documentElement.setAttribute("data-skin",curTheme)}balance=+p.balance||0;setBal(true);try{localStorage.setItem("depka_profile",JSON.stringify({name:$("uname").textContent,theme:curTheme}))}catch(e){}}
+function saveProf(){try{localStorage.setItem("depka_profile",JSON.stringify({name:$("uname").textContent,theme:curTheme}))}catch(e){}syncRemote()}
 (function(){try{var p=JSON.parse(localStorage.getItem("depka_profile")||"null");if(p){if(typeof p.name==="string"&&p.name.trim())$("uname").textContent=p.name.slice(0,20);if(THEMES.some(function(t){return t.k===p.theme})){curTheme=p.theme;document.documentElement.setAttribute("data-skin",curTheme)}}}catch(e){}})();
 var balance=0;
-function setBal(){balance=Math.round(balance*100)/100;$("balV").textContent=fmt(balance);if(acct.id)saveProf()}
-if(acct.id&&acct.bal>0){balance=acct.bal;setBal()}
+function setBal(skip){balance=Math.round(balance*100)/100;$("balV").textContent=fmt(balance);if(!skip)syncRemote()}
 $("balBtn").onclick=function(){$("giveErr").textContent="";$("balOv").classList.add("open");$("giveAmt").focus()};
 $("closeBal").onclick=function(){$("balOv").classList.remove("open")};
 $("balOv").addEventListener("click",function(e){if(e.target===this)this.classList.remove("open")});
@@ -390,6 +419,46 @@ $("stGo").onclick=function(){
 };
 $("stStop").onclick=function(){if(stRun)stEnd(true)};
 document.addEventListener("keydown",function(e){if(e.key==="Escape"){$("resOv").classList.remove("open");$("upOv").classList.remove("open");$("balOv").classList.remove("open");$("profOv").classList.remove("open");closeLud()}});
+
+function accTab(reg){$("boxReg").hidden=!reg;$("boxLog").hidden=reg;$("tabReg").classList.toggle("on",reg);$("tabLog").classList.toggle("on",!reg);$("accErr").textContent=""}
+$("tabReg").onclick=function(){accTab(true)};$("tabLog").onclick=function(){accTab(false)};
+function nice(m){m=String(m);if(/Invalid login/i.test(m))return"Неверный ID или пароль";if(/rate|too many/i.test(m))return"Слишком много попыток, подожди немного";if(/password/i.test(m))return"Пароль слишком простой или короткий";if(/Failed to fetch|network/i.test(m))return"Нет связи с сервером";return m}
+$("accReg").onclick=async function(){
+  var b=this,pw=$("regPw").value;
+  if(pw.length<6){$("accErr").textContent="Пароль минимум 6 символов";return}
+  $("accErr").textContent="";b.disabled=true;
+  try{
+    for(var i=0;i<6;i++){
+      var id=String(100000+Math.floor(Math.random()*900000)),j;
+      try{j=await sbAuth("signup",{email:mail(id),password:pw})}
+      catch(e){if(/already|registered/i.test(e.message)&&i<5)continue;throw e}
+      if(!j.access_token)throw new Error("В Supabase отключи подтверждение почты (Auth → Providers → Email)");
+      setSess(j,id);
+      var r=await pPut();if(!r.ok)throw new Error("Аккаунт создан, но профиль не сохранился. Проверь таблицу profiles в Supabase");
+      break;
+    }
+    $("regPw").value="";accRefresh();
+  }catch(e){$("accErr").textContent=nice(e.message)}
+  b.disabled=false;
+};
+$("accLogin").onclick=async function(){
+  var b=this,id=$("logId").value.trim(),pw=$("logPw").value;
+  if(!/^\d{6}$/.test(id)||!pw){$("accErr").textContent="Введи ID из 6 цифр и пароль";return}
+  $("accErr").textContent="";b.disabled=true;
+  try{
+    var j=await sbAuth("token?grant_type=password",{email:mail(id),password:pw});
+    setSess(j,id);var p=await pGet();
+    if(p)applyP(p);else await pPut();
+    $("logPw").value="";accRefresh();
+  }catch(e){$("accErr").textContent=nice(e.message)}
+  b.disabled=false;
+};
+$("accOut").onclick=function(){try{localStorage.removeItem("bd_sess");localStorage.removeItem("depka_profile")}catch(e){}location.reload()};
+(async function(){
+  if(!sess)return;
+  try{var j=await sbAuth("token?grant_type=refresh_token",{refresh_token:sess.ref});setSess(j,sess.id)}catch(e){}
+  try{applyP(await pGet())}catch(e){}
+})();
 </script>
 </body>
 </html>
