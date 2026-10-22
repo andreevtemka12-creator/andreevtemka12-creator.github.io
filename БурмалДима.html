@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>БурмалДима</title>
+<style>
+:root{color-scheme:dark;--bg:#050806;--panel:#0d1410;--line:#1f3a29;--green:#2bff7a;--green2:#12a64a;--text:#e8f5ec;--mute:#7f9a89;--red:#ff4d5e;--gold:#ffd24a;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;background:radial-gradient(900px 500px at 50% -10%,#0f3a20 0%,var(--bg) 65%) var(--bg);color:var(--text);font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif}
+header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;padding:20px 24px}
+h1{grid-column:2;margin:0;text-align:center;font-family:Impact,"Arial Black",sans-serif;font-weight:900;font-size:clamp(30px,7vw,72px);letter-spacing:.06em;color:var(--green);text-shadow:0 0 24px rgba(43,255,122,.45)}
+.user{grid-column:3;justify-self:end;display:flex;align-items:center;gap:12px}
+.bal{text-align:right;line-height:1.1}
+.bal small{display:block;color:var(--mute);font-size:12px}
+.bal b{font-size:26px;color:var(--gold)}
+.avatar{width:52px;height:52px;border-radius:50%;border:2px solid var(--green);background:#0a1f13;display:block}
+main{display:flex;justify-content:center;align-items:center;min-height:60vh;padding:24px}
+.menu{display:flex;flex-wrap:wrap;justify-content:center;gap:24px}
+.big{width:230px;padding:22px 16px 20px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,#0f1c15,var(--panel));color:var(--text);font:inherit;font-size:22px;font-weight:800;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:14px;transition:transform .15s,border-color .15s,box-shadow .15s}
+.big:hover,.big:focus-visible{transform:translateY(-4px);border-color:var(--green);box-shadow:0 0 28px rgba(43,255,122,.25);outline:none}
+.big svg{width:120px;height:120px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
+.overlay.open{display:flex}
+.modal{width:min(760px,100%);max-height:100%;overflow:auto;background:var(--panel);border:1px solid var(--green2);border-radius:20px;padding:24px;position:relative;box-shadow:0 0 50px rgba(43,255,122,.15)}
+.modal h2{margin:0 0 18px;text-align:center;font-size:26px;color:var(--green)}
+.x{position:absolute;top:12px;right:14px;background:none;border:0;color:var(--mute);font-size:28px;cursor:pointer}
+.row{display:grid;grid-template-columns:1fr 150px 1fr;gap:14px;align-items:center}
+.field label{display:block;margin-bottom:6px;color:var(--mute);font-size:14px}
+.field input{width:100%;padding:14px;border-radius:12px;border:1px solid var(--line);background:#07100b;color:var(--text);font:inherit;font-size:20px;font-weight:700}
+.field input:focus{outline:2px solid var(--green);border-color:transparent}
+.mid{text-align:center}
+.ring{width:130px;height:130px;margin:0 auto;position:relative}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .pct{position:absolute;inset:0;display:grid;place-items:center;font-size:22px;font-weight:900;color:var(--green)}
+.mid small{color:var(--mute)}
+.go{display:block;width:100%;margin-top:22px;padding:16px;border:0;border-radius:14px;background:var(--green);color:#03150a;font:inherit;font-size:22px;font-weight:900;cursor:pointer}
+.go:hover{filter:brightness(1.1)}
+.go:disabled{opacity:.5;cursor:wait}
+.err{min-height:20px;margin-top:10px;text-align:center;color:var(--red);font-size:14px}
+.result .modal{width:min(420px,100%);text-align:center}
+.result h2{font-size:38px}
+.result.win h2{color:var(--green)}
+.result.lose h2{color:var(--red)}
+.result p{font-size:20px;margin:8px 0 20px}
+.spin .ring svg circle.arc{animation:none}
+.spinning .ring svg{animation:sp .5s linear infinite}
+@keyframes sp{to{transform:rotate(270deg)}}
+.uname{font-weight:800;font-size:16px;color:var(--text);max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:640px){.uname{max-width:140px;font-size:13px}button.bal{grid-row:1}}
+button.bal{grid-column:1;justify-self:start;text-align:left;background:#0a1f13;border:1px solid var(--line);border-radius:12px;padding:6px 14px;color:inherit;font:inherit;cursor:pointer;transition:border-color .15s}
+button.bal:hover,button.bal:focus-visible{border-color:var(--green);outline:none}
+.lud-view{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:14px;background:#07100b;height:110px;margin:6px 0 18px}
+.lud-view::after{content:"";position:absolute;left:50%;top:0;bottom:0;width:3px;background:var(--gold);transform:translateX(-50%);box-shadow:0 0 12px var(--gold);z-index:2}
+.lud-strip{display:flex;height:100%;will-change:transform}
+.lud-item{flex:0 0 120px;display:grid;place-items:center;font-size:26px;font-weight:900;border-right:1px solid var(--line)}
+.lud-item.l{color:var(--red);font-size:20px}.lud-item.a{color:var(--text)}.lud-item.b{color:var(--green)}.lud-item.c{color:var(--gold)}
+@media (prefers-reduced-motion:reduce){.spinning .ring svg{animation:none}.big{transition:none}}
+@media (max-width:640px){header{grid-template-columns:1fr auto;padding:14px}h1{grid-column:1/-1;grid-row:2}.user{grid-column:2;grid-row:1}.row{grid-template-columns:1fr}.big{width:100%;max-width:320px}}
+:root{--panel2:#0a1f13;--glow:#0f3a20;--glowc:rgba(43,255,122,.35);--onacc:#03150a;--win:#2bff7a;--lose:#ff4d5e}
+:root[data-skin="bw"]{--bg:#000;--panel:#161616;--panel2:#0c0c0c;--line:#3a3a3a;--green:#fff;--green2:#bdbdbd;--text:#f2f2f2;--mute:#9a9a9a;--glow:#2a2a2a;--glowc:rgba(255,255,255,.3);--onacc:#000}
+:root[data-skin="light"]{color-scheme:light;--bg:#f4f4f4;--panel:#fff;--panel2:#ececec;--line:#cfcfcf;--green:#111;--green2:#555;--text:#111;--mute:#666;--gold:#b8860b;--glow:#fff;--glowc:rgba(0,0,0,.2);--onacc:#fff;--win:#12a64a;--lose:#d62839}
+:root[data-skin="rb"]{--bg:#070a14;--panel:#101528;--panel2:#0b1020;--line:#2a3566;--green:#ff4057;--green2:#2f6bff;--text:#eaf0ff;--mute:#8c97c0;--glow:#1a2a66;--glowc:rgba(255,64,87,.35);--onacc:#fff;--win:#4da3ff}
+:root[data-skin="purple"]{--bg:#0b0614;--panel:#1a1030;--panel2:#120a24;--line:#3d2a66;--green:#c15bff;--green2:#7a2fd1;--text:#f1e8ff;--mute:#a58fc9;--glow:#3a1670;--glowc:rgba(193,91,255,.35);--onacc:#12001f;--win:#c15bff}
+:root[data-skin="orange"]{--bg:#0a0604;--panel:#1a110a;--panel2:#120a05;--line:#4a2c14;--green:#ff8a1f;--green2:#c25a00;--text:#fff1e3;--mute:#b39378;--glow:#4a2200;--glowc:rgba(255,138,31,.35);--onacc:#1a0a00;--win:#ff8a1f}
+body{background:radial-gradient(900px 500px at 50% -10%,var(--glow) 0%,var(--bg) 65%) var(--bg)}
+h1{text-shadow:0 0 24px var(--glowc)}
+.avatar,button.bal{background:var(--panel2)}
+.avatar{cursor:pointer;transition:box-shadow .15s}
+.avatar:hover,.avatar:focus-visible{box-shadow:0 0 14px var(--glowc);outline:none}
+.big{background:linear-gradient(180deg,var(--panel2),var(--panel))}
+.big:hover,.big:focus-visible{box-shadow:0 0 28px var(--glowc)}
+.modal{box-shadow:0 0 50px var(--glowc)}
+.field input,.lud-view{background:var(--panel2)}
+.go{color:var(--onacc)}
+.err{color:var(--lose)}
+.result.win h2{color:var(--win)}
+.result.lose h2{color:var(--lose)}
+.lud-item.l{color:var(--lose)}
+.lud-item.b{color:var(--win)}
+svg [stroke="#2bff7a"]{stroke:var(--green)}
+svg [fill="#2bff7a"]{fill:var(--green)}
+svg [stroke="#1f3a29"]{stroke:var(--line)}
+svg [fill="#0a1f13"],svg [fill="#102a1a"]{fill:var(--panel2)}
+svg [fill="#12a64a"]{fill:var(--green2)}
+.pitem{display:block;width:100%;margin-bottom:12px;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--panel2);color:var(--text);font:inherit;font-size:20px;font-weight:800;text-align:left;cursor:pointer}
+.pitem:hover,.pitem:focus-visible{border-color:var(--green);outline:none}
+.back{display:block;margin:16px auto 0;background:none;border:0;color:var(--mute);font:inherit;font-size:16px;cursor:pointer}
+.themes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.th{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:14px;border:2px solid var(--line);border-radius:14px;font:inherit;font-size:16px;font-weight:800;cursor:pointer}
+.th.on{outline:3px solid var(--green);outline-offset:2px}
+.th .dots{display:flex;gap:6px}
+.th i{width:22px;height:22px;border-radius:50%;display:block;border:1px solid rgba(128,128,128,.5)}
+[hidden]{display:none!important}
+.st-scene{border:1px solid var(--line);border-radius:14px;background:var(--panel2);overflow:hidden}
+.st-scene svg{display:block;width:100%;height:auto}
+#stBike{transform-box:view-box;transform-origin:80px 118px;transition:transform .5s ease}
+#stBike.crash{transition:transform .7s cubic-bezier(.5,0,.9,.6)}
+.running .st-ground{animation:gr .4s linear infinite}
+@keyframes gr{to{stroke-dashoffset:-24}}
+.st-mult{text-align:center;font-family:Impact,"Arial Black",sans-serif;font-size:56px;color:var(--green);margin:10px 0}
+.idl{text-align:center;color:var(--mute);margin-top:6px}.idl b{color:var(--gold);letter-spacing:.1em}
+.idv{padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);font-size:28px;font-weight:900;letter-spacing:.15em;color:var(--gold);text-align:center}
+@media (prefers-reduced-motion:reduce){.running .st-ground{animation:none}}
+</style>
+</head>
+<body>
+<header>
+  <button class="bal" id="balBtn" aria-label="Пополнить баланс"><small>Баланс</small><b id="balV">0 ₽</b></button>
+  <h1>БурмалДима</h1>
+  <div class="user">
+    
+    <span class="uname"><span style="color:var(--mute)">Имя: </span><span id="uname">DIMASIK_PRO001</span></span>
+    <svg class="avatar" id="avatarBtn" role="button" tabindex="0" viewBox="0 0 52 52" aria-label="Профиль"><circle cx="26" cy="20" r="9" fill="#2bff7a"/><path d="M8 46c2-11 10-15 18-15s16 4 18 15" fill="#2bff7a"/></svg>
+  </div>
+</header>
+
+<main>
+  <div class="menu">
+    <button class="big" id="openUp">
+      <svg viewBox="0 0 120 120" aria-hidden="true"><rect x="8" y="8" width="104" height="104" rx="22" fill="#0a1f13" stroke="#2bff7a" stroke-width="3"/><path d="M60 92V34M36 56l24-24 24 24" fill="none" stroke="#2bff7a" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="90" cy="90" r="9" fill="#ffd24a"/></svg>
+      Апгрейдер
+    </button>
+    <button class="big" id="openLud">
+      <svg viewBox="0 0 120 120" aria-hidden="true"><rect x="8" y="8" width="104" height="104" rx="22" fill="#0a1f13" stroke="#2bff7a" stroke-width="3"/><rect x="26" y="26" width="68" height="68" rx="14" fill="#102a1a" stroke="#2bff7a" stroke-width="4"/><circle cx="44" cy="44" r="6" fill="#ffd24a"/><circle cx="60" cy="60" r="6" fill="#ffd24a"/><circle cx="76" cy="76" r="6" fill="#ffd24a"/><circle cx="76" cy="44" r="6" fill="#ffd24a"/><circle cx="44" cy="76" r="6" fill="#ffd24a"/></svg>
+      Лудка
+    </button>
+    <button class="big" id="openSt">
+      <svg viewBox="0 0 120 120" aria-hidden="true"><rect x="8" y="8" width="104" height="104" rx="22" fill="#0a1f13" stroke="#2bff7a" stroke-width="3"/><g fill="none" stroke="#2bff7a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><circle cx="36" cy="80" r="17"/><circle cx="86" cy="80" r="17"/><path d="M36 80L52 54H74L86 80M52 54L60 80H36M74 54L70 42h12M48 48h12"/></g><circle cx="96" cy="34" r="7" fill="#ffd24a"/></svg>
+      Стант
+    </button>
+  </div>
+</main>
+
+<div class="overlay" id="upOv">
+  <div class="modal" id="upModal" role="dialog" aria-label="Апгрейдер">
+    <button class="x" id="closeUp" aria-label="Закрыть">×</button>
+    <h2>Апгрейдер</h2>
+    <div class="row">
+      <div class="field"><label for="want">Хочу получить, ₽</label><input id="want" type="number" min="1" inputmode="numeric" value="200"></div>
+      <div class="mid">
+        <div class="ring">
+          <svg viewBox="0 0 130 130"><circle cx="65" cy="65" r="54" fill="none" stroke="#1f3a29" stroke-width="12"/><circle id="arc" cx="65" cy="65" r="54" fill="none" stroke="#2bff7a" stroke-width="12" stroke-linecap="round" stroke-dasharray="339.3" stroke-dashoffset="169.6"/></svg>
+          <div class="pct" id="pct">50%</div>
+        </div>
+        <small id="mult">x2</small>
+      </div>
+      <div class="field"><label for="bet">Ставлю, ₽</label><input id="bet" type="number" min="1" inputmode="numeric" value="100"></div>
+    </div>
+    <button class="go" id="go">Апгрейд</button>
+    <div class="err" id="err"></div>
+  </div>
+</div>
+
+<div class="overlay" id="profOv">
+  <div class="modal" role="dialog" aria-label="Профиль" style="width:min(460px,100%)">
+    <button class="x" id="closeProf" aria-label="Закрыть">×</button>
+    <h2 id="profT">Профиль</h2>
+    <div id="pvMenu">
+      <button class="pitem" id="pName">Изменить имя</button>
+      <button class="pitem" id="pTheme">Изменить тему</button>
+      <button class="pitem" id="pAcc">Аккаунт</button>
+      <div id="idLine" class="idl" hidden>ID: <b id="idV"></b></div>
+    </div>
+    <div id="pvName" hidden>
+      <div class="field"><label for="nameIn">Новое имя</label><input id="nameIn" type="text" maxlength="20"></div>
+      <button class="go" id="nameSave">Сохранить</button>
+      <div class="err" id="nameErr"></div>
+      <button class="back" data-back>Назад</button>
+    </div>
+    <div id="pvAcc" hidden>
+      <div id="accOff"><p style="color:var(--mute);margin:0 0 14px">Зарегистрируй аккаунт — профиль и баланс будут привязаны к нему и сохранятся.</p><button class="go" id="accReg" style="margin-top:0">Зарегистрировать аккаунт</button></div>
+      <div id="accOn" hidden><div class="field"><label>Твой ID</label><div class="idv" id="accId"></div></div></div>
+      <button class="back" data-back>Назад</button>
+    </div>
+    <div id="pvTheme" hidden>
+      <div class="themes" id="themes"></div>
+      <button class="back" data-back>Назад</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="balOv">
+  <div class="modal" role="dialog" aria-label="Пополнение баланса" style="width:min(420px,100%)">
+    <button class="x" id="closeBal" aria-label="Закрыть">×</button>
+    <h2>Пополнить баланс</h2>
+    <div class="field"><label for="giveAmt">Сумма от 1 до 999999, ₽</label><input id="giveAmt" type="number" min="1" max="999999" inputmode="numeric" value="1000"></div>
+    <button class="go" id="giveBtn">Выдать</button>
+    <div class="err" id="giveErr"></div>
+  </div>
+</div>
+
+<div class="overlay" id="ludOv">
+  <div class="modal" role="dialog" aria-label="Лудка">
+    <button class="x" id="closeLud" aria-label="Закрыть">×</button>
+    <h2>Лудка</h2>
+    <div class="lud-view"><div class="lud-strip" id="ludStrip"></div></div>
+    <div class="field"><label for="ludBet">Ставлю, ₽</label><input id="ludBet" type="number" min="1" inputmode="numeric" value="100"></div>
+    <button class="go" id="ludGo">Полудаманить</button>
+    <div class="err" id="ludErr"></div>
+  </div>
+</div>
+
+<div class="overlay" id="stOv">
+  <div class="modal" role="dialog" aria-label="Стант" style="width:min(560px,100%)">
+    <button class="x" id="closeSt" aria-label="Закрыть">×</button>
+    <h2>Стант</h2>
+    <div class="st-scene"><svg viewBox="0 0 240 140" aria-hidden="true">
+      <line class="st-ground" x1="0" y1="119" x2="240" y2="119" stroke="#1f3a29" stroke-width="4" stroke-dasharray="14 10"/>
+      <g id="stBike" fill="none" stroke="#2bff7a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="80" cy="100" r="18"/><circle cx="150" cy="100" r="18"/>
+        <path d="M80 100L104 70H132L150 100M104 70L114 100H80M132 72L128 56h10M98 66h14"/>
+        <path d="M106 62L120 82L114 98M106 62L116 36L134 56"/>
+        <circle cx="118" cy="27" r="8" fill="#ffd24a" stroke="none"/>
+      </g>
+    </svg></div>
+    <div class="st-mult" id="stMult">x1.00</div>
+    <div class="field" id="stBetBox"><label for="stBet">Ставлю, ₽</label><input id="stBet" type="number" min="1" inputmode="numeric" value="100"></div>
+    <button class="go" id="stGo">Постантить</button>
+    <button class="go" id="stStop" hidden>Стоп</button>
+    <div class="err" id="stErr"></div>
+  </div>
+</div>
+
+<div class="overlay result" id="resOv">
+  <div class="modal">
+    <h2 id="resT"></h2>
+    <p id="resP"></p>
+    <button class="go" id="resB" style="margin-top:0">Ок</button>
+  </div>
+</div>
+
+<script>
+var $=function(i){return document.getElementById(i)};
+var fmt=function(n){return n.toLocaleString("ru-RU",{maximumFractionDigits:2})+" ₽"};
+var C=2*Math.PI*54;
+function calc(){
+  var bet=parseFloat($("bet").value),want=parseFloat($("want").value);
+  if(!(bet>0)||!(want>0)||want<=bet){return null}
+  var chance=bet/want*100; // x2 = 50%
+  return {bet:bet,want:want,chance:Math.min(chance,95),mult:want/bet};
+}
+function update(){
+  var c=calc(),err="";
+  if(!c){
+    $("pct").textContent="—";$("mult").textContent="";$("arc").setAttribute("stroke-dashoffset",C);
+    var b=parseFloat($("bet").value),w=parseFloat($("want").value);
+    err=(b>0&&w>0)?"Сумма получения должна быть больше ставки":"Введи ставку и желаемую сумму";
+    $("err").textContent=(!$("bet").value&&!$("want").value)?"":err;return null;
+  }
+  var p=c.chance;
+  $("pct").textContent=(p<1?p.toFixed(2):p.toFixed(1)).replace(/\.0$/,"")+"%";
+  $("mult").textContent="x"+(+c.mult.toFixed(2));
+  $("arc").setAttribute("stroke-dashoffset",C*(1-p/100));
+  $("err").textContent="";
+  return c;
+}
+$("bet").addEventListener("input",update);
+$("want").addEventListener("input",update);
+$("openUp").onclick=function(){$("upOv").classList.add("open");update()};
+$("closeUp").onclick=function(){$("upOv").classList.remove("open")};
+$("upOv").addEventListener("click",function(e){if(e.target===this)this.classList.remove("open")});
+$("go").onclick=function(){
+  var c=update();if(!c)return;
+  if(c.bet>balance){$("err").textContent="Недостаточно средств. Пополни баланс";return}
+  balance-=c.bet;setBal();
+  var btn=$("go");btn.disabled=true;$("upModal").classList.add("spinning");
+  setTimeout(function(){
+    $("upModal").classList.remove("spinning");btn.disabled=false;
+    var r=$("resOv"),win=Math.random()*100<c.chance;
+    r.classList.remove("win","lose");
+    if(win){
+      r.classList.add("win");$("resT").textContent="Повезло!";
+      balance+=c.want;setBal();$("resP").textContent="Ты получил "+fmt(c.want);
+    }else{
+      r.classList.add("lose");$("resT").textContent="Не повезло";
+      if(Math.random()<0.1){
+        balance+=c.bet*0.1;setBal();$("resP").textContent="Но тебе выплатили компенсацию: "+fmt(c.bet*0.1)+" (10% от проигранного)";
+      }else{
+        $("resP").textContent="Ставка "+fmt(c.bet)+" сгорела";
+      }
+    }
+    r.classList.add("open");
+  },1100);
+};
+var THEMES=[
+{k:"green",n:"Чёрно-зелёная",bg:"#050806",a:"#2bff7a",b:"#12a64a",t:"#e8f5ec"},
+{k:"bw",n:"Чёрно-белая",bg:"#000000",a:"#ffffff",b:"#8a8a8a",t:"#f2f2f2"},
+{k:"light",n:"Белая",bg:"#f4f4f4",a:"#111111",b:"#8a8a8a",t:"#111111"},
+{k:"rb",n:"Красно-синяя",bg:"#070a14",a:"#ff4057",b:"#2f6bff",t:"#eaf0ff"},
+{k:"purple",n:"Фиолетовая",bg:"#0b0614",a:"#c15bff",b:"#7a2fd1",t:"#f1e8ff"},
+{k:"orange",n:"Оранжевая",bg:"#0a0604",a:"#ff8a1f",b:"#c25a00",t:"#fff1e3"}];
+var curTheme="green";
+function buildThemes(){var h="";THEMES.forEach(function(o){h+='<button class="th'+(o.k===curTheme?' on':'')+'" data-k="'+o.k+'" style="background:'+o.bg+';color:'+o.t+'"><span class="dots"><i style="background:'+o.a+'"></i><i style="background:'+o.b+'"></i></span>'+o.n+'</button>'});$("themes").innerHTML=h}
+$("themes").addEventListener("click",function(e){var b=e.target.closest(".th");if(!b)return;curTheme=b.getAttribute("data-k");document.documentElement.setAttribute("data-skin",curTheme);saveProf();buildThemes()});
+function accRefresh(){var on=!!acct.id;$("idLine").hidden=!on;$("idV").textContent=acct.id||"";$("accOff").hidden=on;$("accOn").hidden=!on;$("accId").textContent=acct.id||"";$("pAcc").textContent=on?"Аккаунт":"Войти / Зарегистрироваться"}
+function profView(v){["Menu","Name","Theme","Acc"].forEach(function(k){$("pv"+k).hidden=v!==k.toLowerCase()});$("profT").textContent={menu:"Профиль",name:"Изменить имя",theme:"Изменить тему",acc:"Аккаунт"}[v];accRefresh()}
+$("pAcc").onclick=function(){profView("acc")};
+$("accReg").onclick=function(){acct.id=String(100000+Math.floor(Math.random()*900000));saveProf();accRefresh()};
+function openProf(){profView("menu");$("profOv").classList.add("open")}
+$("avatarBtn").onclick=openProf;
+$("avatarBtn").addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();openProf()}});
+$("closeProf").onclick=function(){$("profOv").classList.remove("open")};
+$("profOv").addEventListener("click",function(e){if(e.target===this)this.classList.remove("open")});
+$("pName").onclick=function(){$("nameIn").value=$("uname").textContent;$("nameErr").textContent="";profView("name");$("nameIn").focus()};
+$("pTheme").onclick=function(){buildThemes();profView("theme")};
+document.querySelectorAll("[data-back]").forEach(function(b){b.onclick=function(){profView("menu")}});
+$("nameSave").onclick=function(){var n=$("nameIn").value.trim();if(!n){$("nameErr").textContent="Имя не может быть пустым";return}$("uname").textContent=n;saveProf();$("profOv").classList.remove("open")};
+$("nameIn").addEventListener("keydown",function(e){if(e.key==="Enter")$("nameSave").click()});
+var acct={};try{acct=JSON.parse(localStorage.getItem("depka_profile")||"{}")||{}}catch(e){}
+function saveProf(){try{localStorage.setItem("depka_profile",JSON.stringify({name:$("uname").textContent,theme:curTheme,id:acct.id||null,bal:acct.id?balance:0}))}catch(e){}}
+(function(){try{var p=JSON.parse(localStorage.getItem("depka_profile")||"null");if(p){if(typeof p.name==="string"&&p.name.trim())$("uname").textContent=p.name.slice(0,20);if(THEMES.some(function(t){return t.k===p.theme})){curTheme=p.theme;document.documentElement.setAttribute("data-skin",curTheme)}}}catch(e){}})();
+var balance=0;
+function setBal(){balance=Math.round(balance*100)/100;$("balV").textContent=fmt(balance);if(acct.id)saveProf()}
+if(acct.id&&acct.bal>0){balance=acct.bal;setBal()}
+$("balBtn").onclick=function(){$("giveErr").textContent="";$("balOv").classList.add("open");$("giveAmt").focus()};
+$("closeBal").onclick=function(){$("balOv").classList.remove("open")};
+$("balOv").addEventListener("click",function(e){if(e.target===this)this.classList.remove("open")});
+$("giveBtn").onclick=function(){
+  var a=parseInt($("giveAmt").value,10);
+  if(!(a>=1&&a<=999999)){$("giveErr").textContent="Введи целое число от 1 до 999999";return}
+  balance+=a;setBal();$("balOv").classList.remove("open");
+};
+var LUD=[{t:"Проиграл",m:0,w:50,c:"l"},{t:"x1,5",m:1.5,w:30,c:"a"},{t:"x2",m:2,w:15,c:"b"},{t:"x3",m:3,w:5,c:"c"}];
+var ludBusy=false,IW=120;
+function ludPick(){var r=Math.random()*100,s=0;for(var i=0;i<LUD.length;i++){s+=LUD[i].w;if(r<s)return LUD[i]}return LUD[0]}
+function ludFill(winner){
+  var h="";
+  for(var i=0;i<60;i++){var o=(winner&&i===50)?winner:ludPick();h+='<div class="lud-item '+o.c+'">'+o.t+'</div>'}
+  var s=$("ludStrip");s.style.transition="none";s.style.transform="translateX(0)";s.innerHTML=h;void s.offsetWidth;
+}
+$("openLud").onclick=function(){$("ludOv").classList.add("open");$("ludErr").textContent="";if(!ludBusy)ludFill()};
+function closeLud(){if(!ludBusy)$("ludOv").classList.remove("open")}
+$("closeLud").onclick=closeLud;
+$("ludOv").addEventListener("click",function(e){if(e.target===this)closeLud()});
+$("ludGo").onclick=function(){
+  var bet=parseFloat($("ludBet").value);
+  if(!(bet>0)){$("ludErr").textContent="Введи ставку больше нуля";return}
+  if(bet>balance){$("ludErr").textContent="Недостаточно средств. Пополни баланс";return}
+  balance-=bet;setBal();$("ludErr").textContent="";ludBusy=true;$("ludGo").disabled=true;
+  var win=ludPick();ludFill(win);
+  var s=$("ludStrip"),vw=s.parentNode.clientWidth;
+  var target=50*IW+(Math.random()*0.8+0.1)*IW-vw/2;
+  s.style.transition="transform 5s cubic-bezier(.1,.7,.1,1)";
+  s.style.transform="translateX(-"+target+"px)";
+  setTimeout(function(){
+    ludBusy=false;$("ludGo").disabled=false;
+    var r=$("resOv");r.classList.remove("win","lose");
+    if(win.m>0){r.classList.add("win");$("resT").textContent="Повезло!";balance+=bet*win.m;setBal();$("resP").textContent="Выпало "+win.t+". Ты получил "+fmt(bet*win.m)}
+    else{r.classList.add("lose");$("resT").textContent="Проиграл";$("resP").textContent="Ставка "+fmt(bet)+" сгорела"}
+    r.classList.add("open");
+  },5200);
+};
+$("resB").onclick=function(){$("resOv").classList.remove("open")};
+var stRun=false,stM=1,stT=null,stBet=0;
+function stSet(m){stM=m;$("stMult").textContent="x"+m.toFixed(2)}
+function closeSt(){if(!stRun)$("stOv").classList.remove("open")}
+$("openSt").onclick=function(){$("stOv").classList.add("open");$("stErr").textContent=""};
+$("closeSt").onclick=closeSt;
+$("stOv").addEventListener("click",function(e){if(e.target===this)closeSt()});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closeSt()});
+function stEnd(win){
+  clearInterval(stT);stRun=false;$("stOv").classList.remove("running");
+  $("stStop").hidden=true;$("stGo").hidden=false;$("stBetBox").hidden=false;
+  var b=$("stBike"),r=$("resOv");r.classList.remove("win","lose");
+  if(win){
+    var got=Math.round(stBet*stM*100)/100;b.style.transform="rotate(0deg)";
+    balance+=got;setBal();r.classList.add("win");$("resT").textContent="Повезло!";$("resP").textContent="Остановил на x"+stM.toFixed(2)+". Ты получил "+fmt(got);
+  }else{
+    b.classList.add("crash");b.style.transform="translate(-25px,0) rotate(-115deg)";
+    r.classList.add("lose");$("resT").textContent="Упал!";$("resP").textContent="Оборвалось на x"+stM.toFixed(2)+". Ставка "+fmt(stBet)+" сгорела";
+  }
+  setTimeout(function(){r.classList.add("open")},win?700:900);
+}
+$("stGo").onclick=function(){
+  var bet=parseFloat($("stBet").value);
+  if(!(bet>0)){$("stErr").textContent="Введи ставку больше нуля";return}
+  if(bet>balance){$("stErr").textContent="Недостаточно средств. Пополни баланс";return}
+  balance-=bet;setBal();stBet=bet;$("stErr").textContent="";
+  var b=$("stBike");b.classList.remove("crash");b.style.transform="rotate(0deg)";void b.getBoundingClientRect();
+  stSet(1);stRun=true;$("stOv").classList.add("running");
+  $("stGo").hidden=true;$("stBetBox").hidden=true;$("stStop").hidden=false;
+  b.style.transform="rotate(-38deg)";
+  stT=setInterval(function(){
+    var step=0.01*(1+(stM-1)*0.5),p=1.386*(stM-1)*step; // при x2.00 шанс обрыва 50%
+    if(Math.random()<p)stEnd(false);else stSet(stM+step);
+  },60);
+};
+$("stStop").onclick=function(){if(stRun)stEnd(true)};
+document.addEventListener("keydown",function(e){if(e.key==="Escape"){$("resOv").classList.remove("open");$("upOv").classList.remove("open");$("balOv").classList.remove("open");$("profOv").classList.remove("open");closeLud()}});
+</script>
+</body>
+</html>
