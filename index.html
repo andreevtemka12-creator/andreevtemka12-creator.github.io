@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>БурмалДима</title>
-<meta name="description" content="БурмалДима — игры Апгрейдер, Лудка и Стант">
+<meta name="description" content="БурмалДима — игры Апгрейдер, Лудка, Стант и Слоты">
 <style>
 :root{color-scheme:dark;--bg:#050806;--panel:#0d1410;--line:#1f3a29;--green:#2bff7a;--green2:#12a64a;--text:#e8f5ec;--mute:#7f9a89;--red:#ff4d5e;--gold:#ffd24a;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -107,15 +107,20 @@ svg [fill="#12a64a"]{fill:var(--green2)}
 @media (prefers-reduced-motion:reduce){.running .st-ground{animation:none}}
 .tabs{display:flex;gap:8px;margin-bottom:14px}.tabs button{flex:1;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--text);font:inherit;font-weight:800;cursor:pointer}.tabs button.on{border-color:var(--green);color:var(--green)}
 .field{margin-bottom:12px}
+.sl-reels{display:flex;gap:10px;justify-content:center;margin:6px 0 14px}
+.sl-cell{width:92px;height:104px;display:flex;align-items:center;justify-content:center;border:2px solid var(--line);border-radius:14px;background:var(--panel2);font-size:34px;font-weight:900;color:var(--green)}
+.sl-cell.s7{color:#ff3b3b;font-size:60px;font-family:Impact,"Arial Black",sans-serif}
+.sl-cell.spin{filter:blur(1.5px);border-color:var(--green)}
+.sl-pay{color:var(--mute);font-size:14px;text-align:center;line-height:1.6;margin:0 0 12px}
 </style>
 </head>
 <body>
 <header>
-  <button class="bal" id="balBtn" aria-label="Пополнить баланс"><small>Баланс</small><b id="balV">0 ₽</b></button>
+  <button class="bal" id="balBtn" aria-label="Баланс"><small>Баланс</small><b id="balV">0 ДИМ</b></button>
   <h1>БурмалДима</h1>
   <div class="user">
     
-    <span class="uname"><span style="color:var(--mute)">Имя: </span><span id="uname">DIMASIK_PRO001</span></span>
+    <span class="uname"><span style="color:var(--mute)">Имя: </span><span id="uname">Слуга Бесса</span></span>
     <svg class="avatar" id="avatarBtn" role="button" tabindex="0" viewBox="0 0 52 52" aria-label="Профиль"><circle cx="26" cy="20" r="9" fill="#2bff7a"/><path d="M8 46c2-11 10-15 18-15s16 4 18 15" fill="#2bff7a"/></svg>
   </div>
 </header>
@@ -134,6 +139,10 @@ svg [fill="#12a64a"]{fill:var(--green2)}
       <svg viewBox="0 0 120 120" aria-hidden="true"><rect x="8" y="8" width="104" height="104" rx="22" fill="#0a1f13" stroke="#2bff7a" stroke-width="3"/><g fill="none" stroke="#2bff7a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><circle cx="36" cy="80" r="17"/><circle cx="86" cy="80" r="17"/><path d="M36 80L52 54H74L86 80M52 54L60 80H36M74 54L70 42h12M48 48h12"/></g><circle cx="96" cy="34" r="7" fill="#ffd24a"/></svg>
       Стант
     </button>
+    <button class="big" id="openSl">
+      <svg viewBox="0 0 120 120" aria-hidden="true"><rect x="8" y="8" width="104" height="104" rx="22" fill="#0a1f13" stroke="#2bff7a" stroke-width="3"/><g fill="#102a1a" stroke="#2bff7a" stroke-width="3"><rect x="15" y="36" width="27" height="48" rx="6"/><rect x="46" y="36" width="27" height="48" rx="6"/><rect x="77" y="36" width="27" height="48" rx="6"/></g><g fill="#ffd24a" font-size="30" font-weight="900" font-family="Impact,Arial Black,sans-serif" text-anchor="middle"><text x="28.5" y="70">7</text><text x="59.5" y="70">7</text><text x="90.5" y="70">7</text></g></svg>
+      Слоты
+    </button>
   </div>
 </main>
 
@@ -142,7 +151,7 @@ svg [fill="#12a64a"]{fill:var(--green2)}
     <button class="x" id="closeUp" aria-label="Закрыть">×</button>
     <h2>Апгрейдер</h2>
     <div class="row">
-      <div class="field"><label for="want">Хочу получить, ₽</label><input id="want" type="number" min="1" inputmode="numeric" value="200"></div>
+      <div class="field"><label for="want">Хочу получить, ДИМкойны</label><input id="want" type="number" min="1" inputmode="numeric" value="200"></div>
       <div class="mid">
         <div class="ring">
           <svg viewBox="0 0 130 130"><circle cx="65" cy="65" r="54" fill="none" stroke="#1f3a29" stroke-width="12"/><circle id="arc" cx="65" cy="65" r="54" fill="none" stroke="#2bff7a" stroke-width="12" stroke-linecap="round" stroke-dasharray="339.3" stroke-dashoffset="169.6"/></svg>
@@ -150,7 +159,7 @@ svg [fill="#12a64a"]{fill:var(--green2)}
         </div>
         <small id="mult">x2</small>
       </div>
-      <div class="field"><label for="bet">Ставлю, ₽</label><input id="bet" type="number" min="1" inputmode="numeric" value="100"></div>
+      <div class="field"><label for="bet">Ставлю, ДИМкойны</label><input id="bet" type="number" min="1" inputmode="numeric" value="100"></div>
     </div>
     <button class="go" id="go">Апгрейд</button>
     <div class="err" id="err"></div>
@@ -164,6 +173,7 @@ svg [fill="#12a64a"]{fill:var(--green2)}
     <div id="pvMenu">
       <button class="pitem" id="pName">Изменить имя</button>
       <button class="pitem" id="pTheme">Изменить тему</button>
+      <button class="pitem" id="pDev">Перейти в режим разработчика</button>
       <button class="pitem" id="pAcc">Аккаунт</button>
       <div id="idLine" class="idl" hidden>ID: <b id="idV"></b></div>
     </div>
@@ -194,20 +204,29 @@ svg [fill="#12a64a"]{fill:var(--green2)}
       </div>
       <button class="back" data-back>Назад</button>
     </div>
+    <div id="pvDev" hidden>
+      <p style="color:var(--mute);margin:0 0 12px">Введи пароль разработчика.</p>
+      <div class="field"><label for="devPw">Пароль</label><input id="devPw" type="password" autocomplete="off"></div>
+      <button class="go" id="devEnter" style="margin-top:0">Войти</button>
+      <div class="err" id="devErr"></div>
+      <button class="back" data-back>Назад</button>
+    </div>
+    <div id="pvDevMenu" hidden>
+      <button class="pitem" id="devUp">Накрутить</button>
+      <button class="pitem" id="devDown">Скрутить</button>
+      <button class="back" data-back>Назад</button>
+    </div>
+    <div id="pvDevForm" hidden>
+      <div class="field"><label for="devId">ID аккаунта</label><input id="devId" type="text" inputmode="numeric" maxlength="6" autocomplete="off"></div>
+      <div class="field"><label for="devAmt">Сумма, ДИМкойны</label><input id="devAmt" type="number" min="1" inputmode="numeric" autocomplete="off"></div>
+      <button class="go" id="devDo" style="margin-top:0">Выполнить</button>
+      <div class="err" id="devMsg"></div>
+      <button class="back" id="devBack">Назад</button>
+    </div>
     <div id="pvTheme" hidden>
       <div class="themes" id="themes"></div>
       <button class="back" data-back>Назад</button>
     </div>
-  </div>
-</div>
-
-<div class="overlay" id="balOv">
-  <div class="modal" role="dialog" aria-label="Пополнение баланса" style="width:min(420px,100%)">
-    <button class="x" id="closeBal" aria-label="Закрыть">×</button>
-    <h2>Пополнить баланс</h2>
-    <div class="field"><label for="giveAmt">Сумма от 1 до 999999, ₽</label><input id="giveAmt" type="number" min="1" max="999999" inputmode="numeric" value="1000"></div>
-    <button class="go" id="giveBtn">Выдать</button>
-    <div class="err" id="giveErr"></div>
   </div>
 </div>
 
@@ -216,7 +235,7 @@ svg [fill="#12a64a"]{fill:var(--green2)}
     <button class="x" id="closeLud" aria-label="Закрыть">×</button>
     <h2>Лудка</h2>
     <div class="lud-view"><div class="lud-strip" id="ludStrip"></div></div>
-    <div class="field"><label for="ludBet">Ставлю, ₽</label><input id="ludBet" type="number" min="1" inputmode="numeric" value="100"></div>
+    <div class="field"><label for="ludBet">Ставлю, ДИМкойны</label><input id="ludBet" type="number" min="1" inputmode="numeric" value="100"></div>
     <button class="go" id="ludGo">Полудаманить</button>
     <div class="err" id="ludErr"></div>
   </div>
@@ -236,10 +255,22 @@ svg [fill="#12a64a"]{fill:var(--green2)}
       </g>
     </svg></div>
     <div class="st-mult" id="stMult">x1.00</div>
-    <div class="field" id="stBetBox"><label for="stBet">Ставлю, ₽</label><input id="stBet" type="number" min="1" inputmode="numeric" value="100"></div>
+    <div class="field" id="stBetBox"><label for="stBet">Ставлю, ДИМкойны</label><input id="stBet" type="number" min="1" inputmode="numeric" value="100"></div>
     <button class="go" id="stGo">Постантить</button>
     <button class="go" id="stStop" hidden>Стоп</button>
     <div class="err" id="stErr"></div>
+  </div>
+</div>
+
+<div class="overlay" id="slOv">
+  <div class="modal" role="dialog" aria-label="Слоты" style="width:min(560px,100%)">
+    <button class="x" id="closeSl" aria-label="Закрыть">×</button>
+    <h2>Слоты</h2>
+    <div class="sl-reels"><div class="sl-cell" id="sl0">🍒</div><div class="sl-cell" id="sl1">🔔</div><div class="sl-cell s7" id="sl2">7</div></div>
+    <p class="sl-pay">777 — x50 · BAR×3 — x8 · 🔔×3 — x4 · 🍋×3 — x2 · 🍒🍒 — x0.5</p>
+    <div class="field"><label for="slBet">Ставлю, ДИМкойны</label><input id="slBet" type="number" min="1" inputmode="numeric" value="100"></div>
+    <button class="go" id="slGo">Крутануть</button>
+    <div class="err" id="slErr"></div>
   </div>
 </div>
 
@@ -253,12 +284,12 @@ svg [fill="#12a64a"]{fill:var(--green2)}
 
 <script>
 var $=function(i){return document.getElementById(i)};
-var fmt=function(n){return n.toLocaleString("ru-RU",{maximumFractionDigits:2})+" ₽"};
+var fmt=function(n){return n.toLocaleString("ru-RU",{maximumFractionDigits:2})+" ДИМ"};
 var C=2*Math.PI*54;
 function calc(){
   var bet=parseFloat($("bet").value),want=parseFloat($("want").value);
   if(!(bet>0)||!(want>0)||want<=bet){return null}
-  var chance=bet/want*100; // x2 = 50%
+  var chance=bet/want*100*0.93; // x2 = 46.5%, возврат игроку ~93%
   return {bet:bet,want:want,chance:Math.min(chance,95),mult:want/bet};
 }
 function update(){
@@ -315,7 +346,8 @@ var curTheme="green";
 function buildThemes(){var h="";THEMES.forEach(function(o){h+='<button class="th'+(o.k===curTheme?' on':'')+'" data-k="'+o.k+'" style="background:'+o.bg+';color:'+o.t+'"><span class="dots"><i style="background:'+o.a+'"></i><i style="background:'+o.b+'"></i></span>'+o.n+'</button>'});$("themes").innerHTML=h}
 $("themes").addEventListener("click",function(e){var b=e.target.closest(".th");if(!b)return;curTheme=b.getAttribute("data-k");document.documentElement.setAttribute("data-skin",curTheme);saveProf();buildThemes()});
 function accRefresh(){var on=!!acct.id;$("idLine").hidden=!on;$("idV").textContent=acct.id||"";$("accOff").hidden=on;$("accOn").hidden=!on;$("accId").textContent=acct.id||"";$("pAcc").textContent=on?"Аккаунт":"Войти / Зарегистрироваться"}
-function profView(v){["Menu","Name","Theme","Acc"].forEach(function(k){$("pv"+k).hidden=v!==k.toLowerCase()});$("profT").textContent={menu:"Профиль",name:"Изменить имя",theme:"Изменить тему",acc:"Аккаунт"}[v];accRefresh()}
+var devPass=null,devMode=1;
+function profView(v){["Menu","Name","Theme","Acc","Dev","DevMenu","DevForm"].forEach(function(k){$("pv"+k).hidden=v!==k.toLowerCase()});$("profT").textContent={menu:"Профиль",name:"Изменить имя",theme:"Изменить тему",acc:"Аккаунт",dev:"Режим разработчика",devmenu:"Режим разработчика",devform:"Режим разработчика"}[v];if(v.indexOf("dev")!==0)devPass=null;accRefresh()}
 $("pAcc").onclick=function(){profView("acc")};
 function openProf(){profView("menu");$("profOv").classList.add("open")}
 $("avatarBtn").onclick=openProf;
@@ -334,24 +366,17 @@ function sbH(t){var h={"apikey":KEY,"Content-Type":"application/json"};if(t)h.Au
 async function sbAuth(path,body){var r=await fetch(SB+"/auth/v1/"+path,{method:"POST",headers:sbH(),body:JSON.stringify(body)});var j=await r.json().catch(function(){return{}});if(!r.ok)throw new Error(j.msg||j.error_description||j.message||"Ошибка");return j}
 function mail(id){return "u"+id+"@burmaldima.app"}
 function setSess(j,id){sess={tok:j.access_token,ref:j.refresh_token,uid:j.user.id,id:id};try{localStorage.setItem("bd_sess",JSON.stringify(sess))}catch(e){}acct.id=id}
-async function pGet(){var r=await fetch(SB+"/rest/v1/profiles?select=*&uid=eq."+sess.uid,{headers:sbH(sess.tok)});if(!r.ok)return null;return (await r.json())[0]||null}
+async function pGet(retry){var r=await fetch(SB+"/rest/v1/profiles?select=*&uid=eq."+sess.uid,{headers:sbH(sess.tok)});if(r.status===401&&!retry){var j=await sbAuth("token?grant_type=refresh_token",{refresh_token:sess.ref});setSess(j,sess.id);return pGet(true)}if(!r.ok)return null;return (await r.json())[0]||null}
 function pRow(){return {uid:sess.uid,public_id:sess.id,name:$("uname").textContent,theme:curTheme,balance:balance}}
 async function pPut(retry){var r=await fetch(SB+"/rest/v1/profiles?on_conflict=uid",{method:"POST",headers:Object.assign(sbH(sess.tok),{Prefer:"resolution=merge-duplicates,return=minimal"}),body:JSON.stringify(pRow())});
   if(r.status===401&&!retry){var j=await sbAuth("token?grant_type=refresh_token",{refresh_token:sess.ref});setSess(j,sess.id);return pPut(true)}return r}
-function syncRemote(){if(!sess)return;clearTimeout(sT);sT=setTimeout(function(){pPut().catch(function(){})},600)}
-function applyP(p){if(!p)return;if(p.name)$("uname").textContent=String(p.name).slice(0,20);if(THEMES.some(function(t){return t.k===p.theme})){curTheme=p.theme;document.documentElement.setAttribute("data-skin",curTheme)}balance=+p.balance||0;setBal(true);try{localStorage.setItem("depka_profile",JSON.stringify({name:$("uname").textContent,theme:curTheme}))}catch(e){}}
+var lastBal=null,inflight=false;
+function syncRemote(){if(!sess)return;clearTimeout(sT);sT=setTimeout(function(){sT=null;inflight=true;var sent=balance;pPut().then(function(r){if(r&&r.ok)lastBal=sent}).catch(function(){}).then(function(){inflight=false})},600)}
+function applyP(p){if(!p)return;if(p.name)$("uname").textContent=p.name==="DIMASIK_PRO001"?"Слуга Бесса":String(p.name).slice(0,20);if(THEMES.some(function(t){return t.k===p.theme})){curTheme=p.theme;document.documentElement.setAttribute("data-skin",curTheme)}balance=+p.balance||0;lastBal=balance;setBal(true);try{localStorage.setItem("depka_profile",JSON.stringify({name:$("uname").textContent,theme:curTheme}))}catch(e){}}
 function saveProf(){try{localStorage.setItem("depka_profile",JSON.stringify({name:$("uname").textContent,theme:curTheme}))}catch(e){}syncRemote()}
 (function(){try{var p=JSON.parse(localStorage.getItem("depka_profile")||"null");if(p){if(typeof p.name==="string"&&p.name.trim())$("uname").textContent=p.name.slice(0,20);if(THEMES.some(function(t){return t.k===p.theme})){curTheme=p.theme;document.documentElement.setAttribute("data-skin",curTheme)}}}catch(e){}})();
 var balance=0;
 function setBal(skip){balance=Math.round(balance*100)/100;$("balV").textContent=fmt(balance);if(!skip)syncRemote()}
-$("balBtn").onclick=function(){$("giveErr").textContent="";$("balOv").classList.add("open");$("giveAmt").focus()};
-$("closeBal").onclick=function(){$("balOv").classList.remove("open")};
-$("balOv").addEventListener("click",function(e){if(e.target===this)this.classList.remove("open")});
-$("giveBtn").onclick=function(){
-  var a=parseInt($("giveAmt").value,10);
-  if(!(a>=1&&a<=999999)){$("giveErr").textContent="Введи целое число от 1 до 999999";return}
-  balance+=a;setBal();$("balOv").classList.remove("open");
-};
 var LUD=[{t:"Проиграл",m:0,w:50,c:"l"},{t:"x1,5",m:1.5,w:30,c:"a"},{t:"x2",m:2,w:15,c:"b"},{t:"x3",m:3,w:5,c:"c"}];
 var ludBusy=false,IW=120;
 function ludPick(){var r=Math.random()*100,s=0;for(var i=0;i<LUD.length;i++){s+=LUD[i].w;if(r<s)return LUD[i]}return LUD[0]}
@@ -383,7 +408,7 @@ $("ludGo").onclick=function(){
   },5200);
 };
 $("resB").onclick=function(){$("resOv").classList.remove("open")};
-var stRun=false,stM=1,stT=null,stBet=0;
+var stRun=false,stM=1,stT=null,stBet=0,stCrash=1;
 function stSet(m){stM=m;$("stMult").textContent="x"+m.toFixed(2)}
 function closeSt(){if(!stRun)$("stOv").classList.remove("open")}
 $("openSt").onclick=function(){$("stOv").classList.add("open");$("stErr").textContent=""};
@@ -409,16 +434,17 @@ $("stGo").onclick=function(){
   if(bet>balance){$("stErr").textContent="Недостаточно средств. Пополни баланс";return}
   balance-=bet;setBal();stBet=bet;$("stErr").textContent="";
   var b=$("stBike");b.classList.remove("crash");b.style.transform="rotate(0deg)";void b.getBoundingClientRect();
+  stCrash=Math.max(1,Math.min(100,0.95/(Math.random()||1e-9))); // P(дойти до x)=95%/x, возврат ~95%
   stSet(1);stRun=true;$("stOv").classList.add("running");
   $("stGo").hidden=true;$("stBetBox").hidden=true;$("stStop").hidden=false;
   b.style.transform="rotate(-38deg)";
   stT=setInterval(function(){
-    var step=0.01*(1+(stM-1)*0.5),p=1.386*(stM-1)*step; // при x2.00 шанс обрыва 50%
-    if(Math.random()<p)stEnd(false);else stSet(stM+step);
+    var step=0.01*(1+(stM-1)*0.5),nx=stM+step;
+    if(nx>=stCrash){stSet(Math.max(1,Math.floor(stCrash*100)/100));stEnd(false)}else stSet(nx);
   },60);
 };
 $("stStop").onclick=function(){if(stRun)stEnd(true)};
-document.addEventListener("keydown",function(e){if(e.key==="Escape"){$("resOv").classList.remove("open");$("upOv").classList.remove("open");$("balOv").classList.remove("open");$("profOv").classList.remove("open");closeLud()}});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"){$("resOv").classList.remove("open");$("upOv").classList.remove("open");$("profOv").classList.remove("open");closeLud()}});
 
 function accTab(reg){$("boxReg").hidden=!reg;$("boxLog").hidden=reg;$("tabReg").classList.toggle("on",reg);$("tabLog").classList.toggle("on",!reg);$("accErr").textContent=""}
 $("tabReg").onclick=function(){accTab(true)};$("tabLog").onclick=function(){accTab(false)};
@@ -434,7 +460,7 @@ $("accReg").onclick=async function(){
       catch(e){if(/already|registered/i.test(e.message)&&i<5)continue;throw e}
       if(!j.access_token)throw new Error("В Supabase отключи подтверждение почты (Auth → Providers → Email)");
       setSess(j,id);
-      var r=await pPut();if(!r.ok)throw new Error("Аккаунт создан, но профиль не сохранился. Проверь таблицу profiles в Supabase");
+      var r=await pPut();lastBal=balance;if(!r.ok)throw new Error("Аккаунт создан, но профиль не сохранился. Проверь таблицу profiles в Supabase");
       break;
     }
     $("regPw").value="";accRefresh();
@@ -459,6 +485,89 @@ $("accOut").onclick=function(){try{localStorage.removeItem("bd_sess");localStora
   try{var j=await sbAuth("token?grant_type=refresh_token",{refresh_token:sess.ref});setSess(j,sess.id)}catch(e){}
   try{applyP(await pGet())}catch(e){}
 })();
+var SL_SYM=["7","BAR","🔔","🍋","🍒"];
+// Шансы (%) и множители. Возврат игроку: 0.5+0.16+0.12+0.10+0.05 = 93%
+var SL_OUT=[{k:"777",p:1,m:50},{k:"BAR",p:2,m:8},{k:"BELL",p:3,m:4},{k:"LEMON",p:5,m:2},{k:"CH2",p:10,m:0.5},{k:"LOSE",p:79,m:0}];
+var slBusy=false;
+function slR(a){return a[Math.floor(Math.random()*a.length)]}
+function slPick(){var r=Math.random()*100,s=0;for(var i=0;i<SL_OUT.length;i++){s+=SL_OUT[i].p;if(r<s)return SL_OUT[i]}return SL_OUT[SL_OUT.length-1]}
+function slReels(o){
+  var map={"777":"7","BAR":"BAR","BELL":"🔔","LEMON":"🍋"};
+  if(map[o.k])return [map[o.k],map[o.k],map[o.k]];
+  if(o.k==="CH2"){var r=["🍒","🍒",slR(["7","BAR","🔔","🍋"])],i=Math.floor(Math.random()*3),t=r[2];r[2]=r[i];r[i]=t;return r}
+  while(true){var q=[slR(SL_SYM),slR(SL_SYM),slR(SL_SYM)];var ch=q.filter(function(x){return x==="🍒"}).length;if(!(q[0]===q[1]&&q[1]===q[2])&&ch<2)return q}
+}
+function slSet(c,t){c.textContent=t;c.classList.toggle("s7",t==="7")}
+function closeSl(){if(!slBusy)$("slOv").classList.remove("open")}
+$("openSl").onclick=function(){$("slOv").classList.add("open");$("slErr").textContent=""};
+$("closeSl").onclick=closeSl;
+$("slOv").addEventListener("click",function(e){if(e.target===this)closeSl()});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closeSl()});
+$("slGo").onclick=function(){
+  var bet=parseFloat($("slBet").value);
+  if(!(bet>0)){$("slErr").textContent="Введи ставку больше нуля";return}
+  if(bet>balance){$("slErr").textContent="Недостаточно средств. Пополни баланс";return}
+  balance-=bet;setBal();$("slErr").textContent="";slBusy=true;$("slGo").disabled=true;
+  var o=slPick(),fin=slReels(o),cells=[$("sl0"),$("sl1"),$("sl2")],ts=[];
+  cells.forEach(function(c,i){
+    c.classList.add("spin");
+    ts[i]=setInterval(function(){slSet(c,slR(SL_SYM))},70);
+    setTimeout(function(){clearInterval(ts[i]);c.classList.remove("spin");slSet(c,fin[i])},800+i*500);
+  });
+  setTimeout(function(){
+    slBusy=false;$("slGo").disabled=false;
+    var got=Math.round(bet*o.m*100)/100,r=$("resOv");r.classList.remove("win","lose");
+    if(got>0){balance+=got;setBal()}
+    if(o.m>=1){r.classList.add("win");$("resT").textContent=o.k==="777"?"ДЖЕКПОТ!":"Повезло!";$("resP").textContent="x"+o.m+". Ты получил "+fmt(got)}
+    else if(got>0){r.classList.add("lose");$("resT").textContent="Почти!";$("resP").textContent="Две вишни: вернулась половина ставки, "+fmt(got)}
+    else{r.classList.add("lose");$("resT").textContent="Проиграл";$("resP").textContent="Ставка "+fmt(bet)+" сгорела"}
+    r.classList.add("open");
+  },800+2*500+250);
+};
+async function rpc(name,body,retry){
+  var r=await fetch(SB+"/rest/v1/rpc/"+name,{method:"POST",headers:sbH(sess.tok),body:JSON.stringify(body)});
+  if(r.status===401&&!retry){var j=await sbAuth("token?grant_type=refresh_token",{refresh_token:sess.ref});setSess(j,sess.id);return rpc(name,body,true)}
+  var d=await r.json().catch(function(){return null});
+  if(!r.ok)throw new Error((d&&d.message)||"Ошибка");
+  return d;
+}
+$("pDev").onclick=function(){$("devPw").value="";$("devErr").textContent="";profView("dev")};
+$("devEnter").onclick=async function(){
+  var b=this,pw=$("devPw").value;$("devErr").textContent="";
+  if(!sess){$("devErr").textContent="Сначала войди в аккаунт";return}
+  if(!pw){$("devErr").textContent="Введи пароль";return}
+  b.disabled=true;
+  try{
+    var ok=await rpc("admin_check",{pw:pw});
+    if(ok===true){devPass=pw;$("devPw").value="";profView("devmenu")}else $("devErr").textContent="Неверный пароль";
+  }catch(e){$("devErr").textContent=/Failed to fetch/i.test(e.message)?"Нет связи с сервером":"Ошибка: "+e.message}
+  b.disabled=false;
+};
+function devOpen(m){devMode=m;$("devId").value="";$("devAmt").value="";$("devMsg").textContent="";$("devMsg").style.color="";profView("devform");$("profT").textContent=m>0?"Накрутить":"Скрутить"}
+$("devUp").onclick=function(){devOpen(1)};
+$("devDown").onclick=function(){devOpen(-1)};
+$("devBack").onclick=function(){profView("devmenu")};
+$("devDo").onclick=async function(){
+  var b=this,id=$("devId").value.trim(),amt=parseFloat($("devAmt").value),m=$("devMsg");
+  m.style.color="";
+  if(!/^\d{6}$/.test(id)){m.textContent="ID — это 6 цифр";return}
+  if(!(amt>0&&amt<=1e9)){m.textContent="Введи сумму больше нуля";return}
+  b.disabled=true;m.textContent="";
+  try{
+    var nb=await rpc("admin_adjust",{pw:devPass,target:id,delta:devMode*amt});
+    if(id===acct.id){balance=+nb;lastBal=balance;setBal(true)}
+    m.style.color="var(--green)";m.textContent="Готово. Баланс аккаунта "+id+": "+fmt(+nb);
+    $("devAmt").value="";
+  }catch(e){m.textContent=/not found/i.test(e.message)?"Аккаунт с таким ID не найден":/bad password/i.test(e.message)?"Пароль не подошёл":/Failed to fetch/i.test(e.message)?"Нет связи с сервером":"Ошибка: "+e.message}
+  b.disabled=false;
+};
+async function pollBal(){
+  if(!sess||sT||inflight||document.hidden)return;
+  try{var p=await pGet();if(p&&!sT&&!inflight&&(+p.balance||0)!==lastBal){balance=+p.balance||0;lastBal=balance;setBal(true)}}catch(e){}
+}
+setInterval(pollBal,8000);
+document.addEventListener("visibilitychange",pollBal);
+if($("uname").textContent==="DIMASIK_PRO001")$("uname").textContent="Слуга Бесса";
 </script>
 </body>
 </html>
