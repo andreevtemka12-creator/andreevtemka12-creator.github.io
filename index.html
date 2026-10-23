@@ -120,6 +120,21 @@ svg [fill="#12a64a"]{fill:var(--green2)}
 #ptr{transform-box:view-box;transform-origin:65px 65px;transition:transform 3.6s cubic-bezier(.1,.6,.15,1)}
 .devwho{margin-bottom:12px;color:var(--mute);text-align:center;font-size:14px;line-height:1.5}
 .flist{display:grid;gap:8px}
+.ck-row{display:flex;justify-content:center;margin:-6px 0 18px}
+.ck-btn{position:relative;padding:10px 26px;border:1px solid var(--green);border-radius:999px;background:var(--panel2);color:var(--text);font:inherit;font-size:18px;font-weight:900;cursor:pointer}
+.ck-btn:hover{filter:brightness(1.15)}
+.ck-bang{position:absolute;top:-9px;right:-9px;width:22px;height:22px;border-radius:50%;background:var(--red);color:#fff;font-size:14px;font-weight:900;display:grid;place-items:center;animation:ckp 1.2s ease-in-out infinite}
+@keyframes ckp{50%{transform:scale(1.2)}}
+.ck-note{color:var(--mute);font-size:14px;text-align:center;margin:0 0 14px;line-height:1.5}
+.ck-days{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.ck-day{border:1px solid var(--line);border-radius:12px;background:var(--panel2);padding:10px 4px;text-align:center;font-size:12px;line-height:1.4}
+.ck-day b{display:block;font-size:14px;margin-bottom:2px}
+.ck-day small{font-size:10px;color:var(--mute)}
+.ck-day.big7{grid-column:span 2;border-color:var(--gold)}
+.ck-day.done{opacity:.5;border-color:var(--green)}
+.ck-day.done b::after{content:" ✓"}
+.ck-day.now{border-color:var(--gold);box-shadow:0 0 12px var(--gold)}
+@media (prefers-reduced-motion:reduce){.ck-bang{animation:none}}
 </style>
 </head>
 <body>
@@ -132,6 +147,7 @@ svg [fill="#12a64a"]{fill:var(--green2)}
     <span class="av-wrap"><svg class="avatar" id="avatarBtn" role="button" tabindex="0" viewBox="0 0 52 52" aria-label="Профиль"><circle cx="26" cy="20" r="9" fill="#2bff7a"/><path d="M8 46c2-11 10-15 18-15s16 4 18 15" fill="#2bff7a"/></svg><span class="frame-badge" id="frameBadge" hidden></span></span>
   </div>
 </header>
+<div class="ck-row"><button class="ck-btn" id="openCk">Чекап<span class="ck-bang" id="ckBang" hidden>!</span></button></div>
 
 <main>
   <div class="menu">
@@ -196,7 +212,7 @@ svg [fill="#12a64a"]{fill:var(--green2)}
       <div id="accOff">
         <div class="tabs"><button id="tabReg" class="on">Регистрация</button><button id="tabLog">Вход</button></div>
         <div id="boxReg">
-          <p style="color:var(--mute);margin:0 0 12px">Тебе выдадут ID из 6 цифр. Придумай пароль (минимум 6 символов), с ним можно войти с любого устройства.</p>
+          <p style="color:var(--mute);margin:0 0 12px">Тебе выдадут ID из 4 цифр и 1000 ДИМкойнов на старт. Придумай пароль (минимум 6 символов), с ним можно войти с любого устройства.</p>
           <div class="field"><label for="regPw">Пароль</label><input id="regPw" type="password" autocomplete="new-password"></div>
           <button class="go" id="accReg" style="margin-top:0">Создать аккаунт</button>
         </div>
@@ -304,6 +320,17 @@ svg [fill="#12a64a"]{fill:var(--green2)}
   </div>
 </div>
 
+<div class="overlay" id="ckOv">
+  <div class="modal" role="dialog" aria-label="Чекап" style="width:min(520px,100%)">
+    <button class="x" id="closeCk" aria-label="Закрыть">×</button>
+    <h2>Чекап</h2>
+    <p class="ck-note">Заходи каждый день. Дни 1–6: по 1 000 ДИМкойнов, день 7: 10 000. Пропустишь день — серия начнётся с первого. Новый день начинается в 00:00 по Москве.</p>
+    <div class="ck-days" id="ckDays"></div>
+    <button class="go" id="ckGo">Забрать</button>
+    <div class="err" id="ckMsg"></div>
+  </div>
+</div>
+
 <div class="overlay result" id="resOv">
   <div class="modal">
     <h2 id="resT"></h2>
@@ -405,7 +432,7 @@ async function pPut(retry){var r=await fetch(SB+"/rest/v1/profiles?uid=eq."+sess
   if(r.status===401&&!retry){var j=await sbAuth("token?grant_type=refresh_token",{refresh_token:sess.ref});setSess(j,sess.id);return pPut(true)}return r}
 var lastBal=null;
 function syncRemote(){if(!sess)return;clearTimeout(sT);sT=setTimeout(function(){sT=null;pPut().catch(function(){})},600)}
-function applyP(p){if(!p)return;if(p.name)$("uname").textContent=p.name==="DIMASIK_PRO001"?"Слуга Бесса":String(p.name).slice(0,20);if(THEMES.some(function(t){return t.k===p.theme})){curTheme=p.theme;document.documentElement.setAttribute("data-skin",curTheme)}balance=+p.balance||0;setBal();myFrame=p.frame||null;updateFrame();try{localStorage.setItem("depka_profile",JSON.stringify({name:$("uname").textContent,theme:curTheme}))}catch(e){}}
+function applyP(p){if(!p)return;if(p.name)$("uname").textContent=p.name==="DIMASIK_PRO001"?"Слуга Бесса":String(p.name).slice(0,20);if(THEMES.some(function(t){return t.k===p.theme})){curTheme=p.theme;document.documentElement.setAttribute("data-skin",curTheme)}balance=+p.balance||0;setBal();myFrame=p.frame||null;updateFrame();ckRefresh();try{localStorage.setItem("depka_profile",JSON.stringify({name:$("uname").textContent,theme:curTheme}))}catch(e){}}
 function saveProf(){try{localStorage.setItem("depka_profile",JSON.stringify({name:$("uname").textContent,theme:curTheme}))}catch(e){}syncRemote()}
 (function(){try{var p=JSON.parse(localStorage.getItem("depka_profile")||"null");if(p){if(typeof p.name==="string"&&p.name.trim())$("uname").textContent=p.name.slice(0,20);if(THEMES.some(function(t){return t.k===p.theme})){curTheme=p.theme;document.documentElement.setAttribute("data-skin",curTheme)}}}catch(e){}})();
 var balance=0;
@@ -506,10 +533,10 @@ $("accReg").onclick=async function(){
   if(pw.length<6){$("accErr").textContent="Пароль минимум 6 символов";return}
   $("accErr").textContent="";b.disabled=true;
   try{
-    for(var i=0;i<6;i++){
-      var id=String(100000+Math.floor(Math.random()*900000)),j;
+    for(var i=0;i<30;i++){
+      var id=String(1000+Math.floor(Math.random()*9000)),j;
       try{j=await sbAuth("signup",{email:mail(id),password:pw})}
-      catch(e){if(/already|registered/i.test(e.message)&&i<5)continue;throw e}
+      catch(e){if(/already|registered/i.test(e.message)&&i<29)continue;throw e}
       if(!j.access_token)throw new Error("В Supabase отключи подтверждение почты (Auth → Providers → Email)");
       setSess(j,id);
       var p0=await pGet();if(!p0)throw new Error("Аккаунт создан, но профиль не появился. Выполни supabase_secure.sql в Supabase");applyP(p0);
@@ -521,7 +548,7 @@ $("accReg").onclick=async function(){
 };
 $("accLogin").onclick=async function(){
   var b=this,id=$("logId").value.trim(),pw=$("logPw").value;
-  if(!/^\d{6}$/.test(id)||!pw){$("accErr").textContent="Введи ID из 6 цифр и пароль";return}
+  if(!/^\d{4,6}$/.test(id)||!pw){$("accErr").textContent="Введи ID и пароль";return}
   $("accErr").textContent="";b.disabled=true;
   try{
     var j=await sbAuth("token?grant_type=password",{email:mail(id),password:pw});
@@ -591,7 +618,7 @@ var FR_ICON={crown:"👑",fire:"🔥",star:"⭐"};
 function frameName(k){var f=FRAMES.filter(function(x){return x.k===k})[0];return f?f.t.replace(/^\S+\s/,""):""}
 function updateFrame(){var k=devActive?"crown":myFrame;$("avatarBtn").classList.toggle("frame-gold",k==="gold");var b=$("frameBadge");b.hidden=!FR_ICON[k];b.textContent=FR_ICON[k]||""}
 function devWho(){var i=devInfo;$("devWho").textContent=i.name+" · ID "+i.id+" · "+fmt(+i.balance)+(i.frame?" · рамка: "+frameName(i.frame):"")}
-function dErr(e){var m=String(e&&e.message||e);if(/not found/i.test(m))return"Аккаунт с таким ID не найден";if(/bad password/i.test(m))return"Неверный пароль";if(/self/i.test(m))return"Нельзя удалить свой аккаунт";if(/Failed to fetch/i.test(m))return"Нет связи с сервером";if(/function|schema/i.test(m))return"На сервере нет новых функций. Выполни supabase_frames.sql";return"Ошибка: "+m}
+function dErr(e){var m=String(e&&e.message||e);if(/not dev/i.test(m))return"Корону можно выдать только тому, кто входил в режим разработчика";if(/not found/i.test(m))return"Аккаунт с таким ID не найден";if(/bad password/i.test(m))return"Неверный пароль";if(/self/i.test(m))return"Нельзя удалить свой аккаунт";if(/Failed to fetch/i.test(m))return"Нет связи с сервером";if(/function|schema/i.test(m))return"На сервере нет новых функций. Выполни supabase_frames.sql";return"Ошибка: "+m}
 $("pDev").onclick=function(){$("devPw").value="";$("devErr").textContent="";profView("dev")};
 $("devEnter").onclick=async function(){
   var b=this,pw=$("devPw").value;$("devErr").textContent="";
@@ -607,7 +634,7 @@ $("devEnter").onclick=async function(){
 };
 $("devIdGo").onclick=async function(){
   var b=this,id=$("devId").value.trim(),e=$("devIdErr");e.style.color="";
-  if(!/^\d{6}$/.test(id)){e.textContent="ID — это 6 цифр";return}
+  if(!/^\d{4,6}$/.test(id)){e.textContent="Введи корректный ID";return}
   b.disabled=true;e.textContent="";
   try{devInfo=await rpc("admin_lookup",{pw:devPass,target:id});devTarget=id;devWho();profView("devmenu")}catch(x){e.textContent=dErr(x)}
   b.disabled=false;
@@ -676,6 +703,41 @@ async function pollBal(){
 setInterval(pollBal,8000);
 document.addEventListener("visibilitychange",pollBal);
 if($("uname").textContent==="DIMASIK_PRO001")$("uname").textContent="Слуга Бесса";
+var ckInfo=null;
+async function ckRefresh(){
+  if(!sess){ckInfo=null;$("ckBang").hidden=true;return}
+  try{ckInfo=await rpc("checkin_status",{});$("ckBang").hidden=!ckInfo.can_claim}catch(e){}
+}
+function ckRender(){
+  var g=$("ckDays");g.innerHTML="";
+  var cl=ckInfo?+ckInfo.claimed_day:0;
+  for(var i=1;i<=7;i++){
+    var d=document.createElement("div");
+    d.className="ck-day"+(i===7?" big7":"")+(i<=cl?" done":"")+(ckInfo&&ckInfo.can_claim&&i===+ckInfo.day?" now":"");
+    d.innerHTML="<b>День "+i+"</b><span>"+numTxt(i===7?10000:1000)+" <small>ДИМкойнов</small></span>";
+    g.appendChild(d);
+  }
+  var b=$("ckGo");
+  if(!sess){b.disabled=true;b.textContent="Войди в аккаунт"}
+  else if(!ckInfo){b.disabled=true;b.textContent="Загрузка…"}
+  else if(ckInfo.can_claim){b.disabled=false;b.textContent="Забрать"}
+  else{b.disabled=true;b.textContent="Приходи завтра"}
+}
+$("openCk").onclick=async function(){$("ckMsg").textContent="";$("ckOv").classList.add("open");ckRender();await ckRefresh();ckRender()};
+function closeCk(){$("ckOv").classList.remove("open")}
+$("closeCk").onclick=closeCk;
+$("ckOv").addEventListener("click",function(e){if(e.target===this)closeCk()});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closeCk()});
+$("ckGo").onclick=async function(){
+  var m=$("ckMsg");this.disabled=true;m.textContent="";m.style.color="";
+  try{
+    var r=await rpc("checkin_claim",{});
+    balance=+r.balance;setBal();m.style.color="var(--green)";m.textContent="Получено: "+fmt(+r.reward)+" (день "+r.day+")";
+  }catch(e){m.textContent=/already/.test(String(e.message))?"Сегодняшний чекап уже получен":gErr(e)}
+  await ckRefresh();ckRender();
+};
+setInterval(ckRefresh,60000);
+document.addEventListener("visibilitychange",function(){if(!document.hidden)ckRefresh()});
 </script>
 </body>
 </html>
