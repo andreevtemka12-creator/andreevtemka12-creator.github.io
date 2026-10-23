@@ -331,6 +331,13 @@ svg [fill="#12a64a"]{fill:var(--green2)}
   </div>
 </div>
 
+<div class="overlay" id="tgOv">
+  <div class="modal" role="dialog" aria-label="Подписка" style="width:min(420px,100%);text-align:center">
+    <h2 style="font-size:26px;line-height:1.25">Подпишись на наш ТГ канал, чтобы продолжить</h2>
+    <button class="go" id="tgGo">Подписаться</button>
+  </div>
+</div>
+
 <div class="overlay result" id="resOv">
   <div class="modal">
     <h2 id="resT"></h2>
@@ -542,7 +549,7 @@ $("accReg").onclick=async function(){
       var p0=await pGet();if(!p0)throw new Error("Аккаунт создан, но профиль не появился. Выполни supabase_secure.sql в Supabase");applyP(p0);
       break;
     }
-    $("regPw").value="";accRefresh();
+    $("regPw").value="";accRefresh();tgShow();
   }catch(e){$("accErr").textContent=nice(e.message)}
   b.disabled=false;
 };
@@ -738,6 +745,13 @@ $("ckGo").onclick=async function(){
 };
 setInterval(ckRefresh,60000);
 document.addEventListener("visibilitychange",function(){if(!document.hidden)ckRefresh()});
+function tgShow(){try{localStorage.setItem("bd_tg_"+acct.id,"1")}catch(e){}$("tgOv").classList.add("open")}
+$("tgGo").onclick=function(){
+  window.open("https://t.me/BurmalDimaOficcial","_blank","noopener");
+  try{localStorage.removeItem("bd_tg_"+acct.id)}catch(e){}
+  $("tgOv").classList.remove("open");
+};
+try{if(sess&&localStorage.getItem("bd_tg_"+sess.id))$("tgOv").classList.add("open")}catch(e){}
 </script>
 </body>
 </html>
