@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>БурмалДима</title>
-<meta name="description" content="БурмалДима — игры Апгрейдер, Лудка, Стант и Слоты">
+<title>Burmaldadima</title>
+<meta name="description" content="Burmaldadima — игры Апгрейдер, Лудка, Стант и Слоты">
 <style>
 :root{color-scheme:dark;--bg:#050806;--panel:#0d1410;--line:#1f3a29;--green:#2bff7a;--green2:#12a64a;--text:#e8f5ec;--mute:#7f9a89;--red:#ff4d5e;--gold:#ffd24a;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -135,12 +135,25 @@ svg [fill="#12a64a"]{fill:var(--green2)}
 .ck-day.done b::after{content:" ✓"}
 .ck-day.now{border-color:var(--gold);box-shadow:0 0 12px var(--gold)}
 @media (prefers-reduced-motion:reduce){.ck-bang{animation:none}}
+.shop-bal{text-align:center;color:var(--mute);margin:0 0 14px;font-size:15px}.shop-bal b{color:var(--gold)}
+.shop-note{color:var(--mute);font-size:13px;text-align:center;line-height:1.5;margin:0 0 14px}
+.sitem{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;margin-bottom:10px;border:1px solid var(--line);border-radius:14px;background:var(--panel2)}
+.sitem.on{border-color:var(--green)}.sitem.locked{opacity:.55}
+.sitem .si-t{font-weight:800;font-size:17px}
+.sitem .si-d{color:var(--mute);font-size:13px;margin-top:3px;line-height:1.4}
+.sitem button{flex:none;min-width:92px;padding:10px 14px;border:0;border-radius:10px;background:var(--green);color:var(--onacc);font:inherit;font-weight:900;cursor:pointer}
+.sitem button:hover:not(:disabled){filter:brightness(1.1)}
+.sitem button:disabled{opacity:.45;cursor:default}
+.sitem button.alt{background:none;border:1px solid var(--green);color:var(--green)}
+.lud-item.n{color:var(--mute);font-size:20px}
+#boxStrip .lud-item{font-size:21px}#boxStrip .lud-item.l,#boxStrip .lud-item.n{font-size:20px}
+.mid .boost-note{display:block;color:var(--gold);font-size:12px;min-height:16px;margin-top:2px}
 </style>
 </head>
 <body>
 <header>
-  <button class="bal" id="balBtn" aria-label="Баланс"><small>Баланс</small><b id="balV">0 <span class="cur">ДИМкойнов</span></b></button>
-  <h1>БурмалДима</h1>
+  <button class="bal" id="balBtn" aria-label="Баланс"><small>Баланс</small><b id="balV">0 <span class="cur">Бурмалдакойнов</span></b></button>
+  <h1>Burmaldadima</h1>
   <div class="user">
     
     <span class="uname"><span style="color:var(--mute)">Имя: </span><span id="uname">Слуга Бесса</span></span>
@@ -175,7 +188,7 @@ svg [fill="#12a64a"]{fill:var(--green2)}
     <button class="x" id="closeUp" aria-label="Закрыть">×</button>
     <h2>Апгрейдер</h2>
     <div class="row">
-      <div class="field"><label for="want">Хочу получить, ДИМкойны</label><input id="want" type="number" min="1" inputmode="numeric" value="200"></div>
+      <div class="field"><label for="want">Хочу получить, Бурмалдакойны</label><input id="want" type="number" min="1" inputmode="numeric" value="200"></div>
       <div class="mid">
         <div class="ring">
           <svg viewBox="0 0 130 130"><circle cx="65" cy="65" r="54" fill="none" stroke="#1f3a29" stroke-width="12"/><circle id="arc" cx="65" cy="65" r="54" fill="none" stroke="#2bff7a" stroke-width="12" stroke-linecap="round" stroke-dasharray="339.3" stroke-dashoffset="169.6"/></svg>
@@ -183,8 +196,9 @@ svg [fill="#12a64a"]{fill:var(--green2)}
           <div class="pct" id="pct">50%</div>
         </div>
         <small id="mult">x2</small>
+        <small class="boost-note" id="boostNote"></small>
       </div>
-      <div class="field"><label for="bet">Ставлю, ДИМкойны</label><input id="bet" type="number" min="1" inputmode="numeric" value="100"></div>
+      <div class="field"><label for="bet">Ставлю, Бурмалдакойны</label><input id="bet" type="number" min="1" inputmode="numeric" value="100"></div>
     </div>
     <button class="go" id="go">Апгрейд</button>
     <div class="err" id="err"></div>
@@ -198,6 +212,7 @@ svg [fill="#12a64a"]{fill:var(--green2)}
     <div id="pvMenu">
       <button class="pitem" id="pName">Изменить имя</button>
       <button class="pitem" id="pTheme">Изменить тему</button>
+      <button class="pitem" id="pShop">Магазин</button>
       <button class="pitem" id="pDev">Перейти в режим разработчика</button>
       <button class="pitem" id="pAcc">Аккаунт</button>
       <div id="idLine" class="idl" hidden>ID: <b id="idV"></b></div>
@@ -212,7 +227,7 @@ svg [fill="#12a64a"]{fill:var(--green2)}
       <div id="accOff">
         <div class="tabs"><button id="tabReg" class="on">Регистрация</button><button id="tabLog">Вход</button></div>
         <div id="boxReg">
-          <p style="color:var(--mute);margin:0 0 12px">Тебе выдадут ID из 4 цифр и 1000 ДИМкойнов на старт. Придумай пароль (минимум 6 символов), с ним можно войти с любого устройства.</p>
+          <p style="color:var(--mute);margin:0 0 12px">Тебе выдадут ID из 4 цифр и 100 Бурмалдакойнов на старт. Придумай пароль (минимум 6 символов), с ним можно войти с любого устройства.</p>
           <div class="field"><label for="regPw">Пароль</label><input id="regPw" type="password" autocomplete="new-password"></div>
           <button class="go" id="accReg" style="margin-top:0">Создать аккаунт</button>
         </div>
@@ -252,7 +267,7 @@ svg [fill="#12a64a"]{fill:var(--green2)}
       <button class="back" id="devMenuBack">Другой аккаунт</button>
     </div>
     <div id="pvDevForm" hidden>
-      <div class="field"><label for="devAmt">Сумма, ДИМкойны</label><input id="devAmt" type="number" min="1" inputmode="numeric" autocomplete="off"></div>
+      <div class="field"><label for="devAmt">Сумма, Бурмалдакойны</label><input id="devAmt" type="number" min="1" inputmode="numeric" autocomplete="off"></div>
       <button class="go" id="devDo" style="margin-top:0">Выполнить</button>
       <div class="err" id="devMsg"></div>
       <button class="back" id="devBack">Назад</button>
@@ -269,6 +284,32 @@ svg [fill="#12a64a"]{fill:var(--green2)}
       <div class="err" id="delMsg"></div>
       <button class="back" id="delBack">Назад</button>
     </div>
+    <div id="pvShop" hidden>
+      <div class="shop-bal"></div>
+      <button class="pitem" id="shRam">Рамки</button>
+      <button class="pitem" id="shUp">Повышение шансов</button>
+      <button class="pitem" id="shBox">Лаки боксы</button>
+      <button class="back" data-back>Назад</button>
+    </div>
+    <div id="pvShopFr" hidden>
+      <div class="shop-bal"></div>
+      <p class="shop-note">Любая рамка стоит 200 Бурмалдакойнов. Купленную рамку можно снимать и надевать бесплатно. Корону купить нельзя.</p>
+      <div id="shFrList"></div>
+      <div class="err" id="shFrMsg"></div>
+      <button class="back" data-shopback>Назад</button>
+    </div>
+    <div id="pvShopUp" hidden>
+      <div class="shop-bal"></div>
+      <p class="shop-note">Уровни покупаются по очереди. Уровень задаёт общий бонус к шансам в Апгрейдере.</p>
+      <div id="shUpList"></div>
+      <div class="err" id="shUpMsg"></div>
+      <button class="back" data-shopback>Назад</button>
+    </div>
+    <div id="pvShopBox" hidden>
+      <div class="shop-bal"></div>
+      <div id="shBoxList"></div>
+      <button class="back" data-shopback>Назад</button>
+    </div>
     <div id="pvTheme" hidden>
       <div class="themes" id="themes"></div>
       <button class="back" data-back>Назад</button>
@@ -281,7 +322,7 @@ svg [fill="#12a64a"]{fill:var(--green2)}
     <button class="x" id="closeLud" aria-label="Закрыть">×</button>
     <h2>Лудка</h2>
     <div class="lud-view"><div class="lud-strip" id="ludStrip"></div></div>
-    <div class="field"><label for="ludBet">Ставлю, ДИМкойны</label><input id="ludBet" type="number" min="1" inputmode="numeric" value="100"></div>
+    <div class="field"><label for="ludBet">Ставлю, Бурмалдакойны</label><input id="ludBet" type="number" min="1" inputmode="numeric" value="100"></div>
     <button class="go" id="ludGo">Полудаманить</button>
     <div class="err" id="ludErr"></div>
   </div>
@@ -301,7 +342,7 @@ svg [fill="#12a64a"]{fill:var(--green2)}
       </g>
     </svg></div>
     <div class="st-mult" id="stMult">x1.00</div>
-    <div class="field" id="stBetBox"><label for="stBet">Ставлю, ДИМкойны</label><input id="stBet" type="number" min="1" inputmode="numeric" value="100"></div>
+    <div class="field" id="stBetBox"><label for="stBet">Ставлю, Бурмалдакойны</label><input id="stBet" type="number" min="1" inputmode="numeric" value="100"></div>
     <button class="go" id="stGo">Постантить</button>
     <button class="go" id="stStop" hidden>Стоп</button>
     <div class="err" id="stErr"></div>
@@ -314,7 +355,7 @@ svg [fill="#12a64a"]{fill:var(--green2)}
     <h2>Слоты</h2>
     <div class="sl-reels"><div class="sl-cell" id="sl0">🍒</div><div class="sl-cell" id="sl1">🔔</div><div class="sl-cell s7" id="sl2">7</div></div>
     <p class="sl-pay">777 — x50 · BAR×3 — x8 · 🔔×3 — x4 · 🍋×3 — x2 · 🍒🍒 — x0.5</p>
-    <div class="field"><label for="slBet">Ставлю, ДИМкойны</label><input id="slBet" type="number" min="1" inputmode="numeric" value="100"></div>
+    <div class="field"><label for="slBet">Ставлю, Бурмалдакойны</label><input id="slBet" type="number" min="1" inputmode="numeric" value="100"></div>
     <button class="go" id="slGo">Крутануть</button>
     <div class="err" id="slErr"></div>
   </div>
@@ -324,7 +365,7 @@ svg [fill="#12a64a"]{fill:var(--green2)}
   <div class="modal" role="dialog" aria-label="Чекап" style="width:min(520px,100%)">
     <button class="x" id="closeCk" aria-label="Закрыть">×</button>
     <h2>Чекап</h2>
-    <p class="ck-note">Заходи каждый день. Дни 1–6: по 1 000 ДИМкойнов, день 7: 10 000. Пропустишь день — серия начнётся с первого. Новый день начинается в 00:00 по Москве.</p>
+    <p class="ck-note">Заходи каждый день. Дни 1–6: по 100 Бурмалдакойнов, день 7: 1 000. Пропустишь день — серия начнётся с первого. Новый день начинается в 00:00 по Москве.</p>
     <div class="ck-days" id="ckDays"></div>
     <button class="go" id="ckGo">Забрать</button>
     <div class="err" id="ckMsg"></div>
@@ -339,6 +380,17 @@ svg [fill="#12a64a"]{fill:var(--green2)}
   </div>
 </div>
 
+<div class="overlay" id="boxOv">
+  <div class="modal" role="dialog" aria-label="Лаки бокс">
+    <button class="x" id="closeBox" aria-label="Закрыть">×</button>
+    <h2 id="boxT">Лаки бокс</h2>
+    <div class="lud-view"><div class="lud-strip" id="boxStrip"></div></div>
+    <p class="sl-pay" id="boxInfo"></p>
+    <button class="go" id="boxGo">Открыть</button>
+    <div class="err" id="boxErr"></div>
+  </div>
+</div>
+
 <div class="overlay result" id="resOv">
   <div class="modal">
     <h2 id="resT"></h2>
@@ -350,14 +402,17 @@ svg [fill="#12a64a"]{fill:var(--green2)}
 <script>
 var $=function(i){return document.getElementById(i)};
 function numTxt(n){return n.toLocaleString("ru-RU",{maximumFractionDigits:2})}
-function dimWord(n){var a=Math.abs(n);if(a%1)return"ДИМкойна";var i=a%100,j=a%10;if(i>=11&&i<=14)return"ДИМкойнов";if(j===1)return"ДИМкойн";if(j>=2&&j<=4)return"ДИМкойна";return"ДИМкойнов"}
+function dimWord(n){var a=Math.abs(n);if(a%1)return"Бурмалдакойна";var i=a%100,j=a%10;if(i>=11&&i<=14)return"Бурмалдакойнов";if(j===1)return"Бурмалдакойн";if(j>=2&&j<=4)return"Бурмалдакойна";return"Бурмалдакойнов"}
 var fmt=function(n){return numTxt(n)+" "+dimWord(n)};
 var C=2*Math.PI*54;
 function calc(){
   var bet=parseFloat($("bet").value),want=parseFloat($("want").value);
   if(!(bet>0)||!(want>0)||want<=bet){return null}
-  var chance=bet/want*100*0.93; // x2 = 46.5%, возврат игроку ~93%
-  return {bet:bet,want:want,chance:Math.min(chance,95),mult:want/bet};
+  var real=Math.min(bet/want*100*0.93,95); // x2 = 46.5%, возврат игроку ~93%
+  // Только внешний вид: бонус из магазина и события меняют показанный шанс, а не настоящий (его считает сервер)
+  var bn=upBonus(),shown=real+bn;
+  if(bn<0)shown=Math.max(shown,real*0.5);
+  return {bet:bet,want:want,chance:Math.min(shown,95),mult:want/bet};
 }
 function update(){
   var c=calc(),err="";
@@ -372,6 +427,7 @@ function update(){
   $("mult").textContent="x"+(+c.mult.toFixed(2));
   $("arc").setAttribute("stroke-dashoffset",C*(1-p/100));
   $("err").textContent="";
+  upNote();
   return c;
 }
 $("bet").addEventListener("input",update);
@@ -416,7 +472,7 @@ $("themes").addEventListener("click",function(e){var b=e.target.closest(".th");i
 function accRefresh(){var on=!!acct.id;$("idLine").hidden=!on;$("idV").textContent=acct.id||"";$("accOff").hidden=on;$("accOn").hidden=!on;$("accId").textContent=acct.id||"";$("pAcc").textContent=on?"Аккаунт":"Войти / Зарегистрироваться"}
 var devPass=null,devMode=1,upBusy=false,devActive=false,devTarget=null,devInfo=null,myFrame=null;
 function gErr(e){var m=String(e&&e.message||e);if(/funds/.test(m))return"Недостаточно средств";if(/auth/.test(m))return"Войди в аккаунт, чтобы играть";if(/bad bet/.test(m))return"Некорректная ставка";if(/Failed to fetch/i.test(m))return"Нет связи с сервером";if(/function|schema/i.test(m))return"На сервере нет игровых функций. Выполни supabase_secure.sql";return"Ошибка: "+m}
-function profView(v){["Menu","Name","Theme","Acc","Dev","DevId","DevMenu","DevForm","DevFrame","DevDel"].forEach(function(k){$("pv"+k).hidden=v!==k.toLowerCase()});$("profT").textContent={menu:"Профиль",name:"Изменить имя",theme:"Изменить тему",acc:"Аккаунт",dev:"Режим разработчика",devid:"Режим разработчика",devmenu:"Режим разработчика",devform:"Режим разработчика",devframe:"Выдать рамку",devdel:"Удалить аккаунт"}[v];if(v.indexOf("dev")!==0)devPass=null;accRefresh()}
+function profView(v){["Menu","Name","Theme","Acc","Dev","DevId","DevMenu","DevForm","DevFrame","DevDel","Shop","ShopFr","ShopUp","ShopBox"].forEach(function(k){$("pv"+k).hidden=v!==k.toLowerCase()});$("profT").textContent={menu:"Профиль",name:"Изменить имя",theme:"Изменить тему",acc:"Аккаунт",dev:"Режим разработчика",devid:"Режим разработчика",devmenu:"Режим разработчика",devform:"Режим разработчика",devframe:"Выдать рамку",devdel:"Удалить аккаунт",shop:"Магазин",shopfr:"Рамки",shopup:"Повышение шансов",shopbox:"Лаки боксы"}[v];if(v.indexOf("dev")!==0)devPass=null;accRefresh()}
 $("pAcc").onclick=function(){profView("acc")};
 function openProf(){profView("menu");$("profOv").classList.add("open")}
 $("avatarBtn").onclick=openProf;
@@ -440,11 +496,11 @@ async function pPut(retry){var r=await fetch(SB+"/rest/v1/profiles?uid=eq."+sess
   if(r.status===401&&!retry){var j=await sbAuth("token?grant_type=refresh_token",{refresh_token:sess.ref});setSess(j,sess.id);return pPut(true)}return r}
 var lastBal=null;
 function syncRemote(){if(!sess)return;clearTimeout(sT);sT=setTimeout(function(){sT=null;pPut().catch(function(){})},600)}
-function applyP(p){if(!p)return;if(p.name)$("uname").textContent=p.name==="DIMASIK_PRO001"?"Слуга Бесса":String(p.name).slice(0,20);if(THEMES.some(function(t){return t.k===p.theme})){curTheme=p.theme;document.documentElement.setAttribute("data-skin",curTheme)}balance=+p.balance||0;setBal();myFrame=p.frame||null;updateFrame();ckRefresh();try{localStorage.setItem("depka_profile",JSON.stringify({name:$("uname").textContent,theme:curTheme}))}catch(e){}}
+function applyP(p){if(!p)return;if(p.name)$("uname").textContent=p.name==="DIMASIK_PRO001"?"Слуга Бесса":String(p.name).slice(0,20);if(THEMES.some(function(t){return t.k===p.theme})){curTheme=p.theme;document.documentElement.setAttribute("data-skin",curTheme)}balance=+p.balance||0;setBal();myFrame=p.frame||null;updateFrame();shLoad(p);ckRefresh();try{localStorage.setItem("depka_profile",JSON.stringify({name:$("uname").textContent,theme:curTheme}))}catch(e){}}
 function saveProf(){try{localStorage.setItem("depka_profile",JSON.stringify({name:$("uname").textContent,theme:curTheme}))}catch(e){}syncRemote()}
 (function(){try{var p=JSON.parse(localStorage.getItem("depka_profile")||"null");if(p){if(typeof p.name==="string"&&p.name.trim())$("uname").textContent=p.name.slice(0,20);if(THEMES.some(function(t){return t.k===p.theme})){curTheme=p.theme;document.documentElement.setAttribute("data-skin",curTheme)}}}catch(e){}})();
 var balance=0;
-function setBal(){balance=Math.round(balance*100)/100;$("balV").innerHTML=numTxt(balance)+' <span class="cur">'+dimWord(balance)+'</span>'}
+function setBal(){balance=Math.round(balance*100)/100;$("balV").innerHTML=numTxt(balance)+' <span class="cur">'+dimWord(balance)+'</span>';document.querySelectorAll(".shop-bal").forEach(function(e){e.innerHTML="Баланс: <b>"+fmt(balance)+"</b>"})}
 var LUD=[{t:"Проиграл",m:0,w:50,c:"l"},{t:"x1,5",m:1.5,w:30,c:"a"},{t:"x2",m:2,w:15,c:"b"},{t:"x3",m:3,w:5,c:"c"}];
 var ludBusy=false,IW=120;
 function ludPick(){var r=Math.random()*100,s=0;for(var i=0;i<LUD.length;i++){s+=LUD[i].w;if(r<s)return LUD[i]}return LUD[0]}
@@ -697,7 +753,7 @@ $("delGo").onclick=async function(){
   }catch(x){m.textContent=dErr(x)}
   b.disabled=false;
 };
-function gameBusy(){return ludBusy||slBusy||stRun||upBusy}
+function gameBusy(){return ludBusy||slBusy||stRun||upBusy||boxBusy||shBusy}
 async function pollBal(){
   if(!sess||document.hidden||gameBusy())return;
   try{
@@ -722,7 +778,7 @@ function ckRender(){
   for(var i=1;i<=7;i++){
     var d=document.createElement("div");
     d.className="ck-day"+(i===7?" big7":"")+(i<=cl?" done":"")+(ckInfo&&ckInfo.can_claim&&i===+ckInfo.day?" now":"");
-    d.innerHTML="<b>День "+i+"</b><span>"+numTxt(i===7?10000:1000)+" <small>ДИМкойнов</small></span>";
+    d.innerHTML="<b>День "+i+"</b><span>"+numTxt(i===7?1000:100)+" <small>Бурмалдакойнов</small></span>";
     g.appendChild(d);
   }
   var b=$("ckGo");
@@ -753,6 +809,181 @@ $("tgGo").onclick=function(){
   $("tgOv").classList.remove("open");
 };
 try{if(sess&&localStorage.getItem("bd_tg_"+sess.id))$("tgOv").classList.add("open")}catch(e){}
+
+/* ===== Магазин ===== */
+var BOOST=[{b:1},{b:3},{b:5},{b:7},{b:10}];
+var SHOP_FR=[{k:"fire",n:"Огонь",i:"🔥"},{k:"star",n:"Звезда",i:"⭐"},{k:"gold",n:"Золотая рамка",i:"🟡"}];
+var boostLvl=0,framesOwned=[],buffPct=0,buffUntil=0,boxBusy=false,shBusy=false,boxCur=null;
+function upBonus(){var b=boostLvl>0?BOOST[boostLvl-1].b:0;if(buffUntil>Date.now())b+=buffPct;return b}
+function upNote(){
+  var n=$("boostNote");if(!n)return;var b=upBonus();
+  if(!b){n.textContent="";return}
+  var s="";if(buffUntil>Date.now()){var t=Math.ceil((buffUntil-Date.now())/1000);s=" ("+Math.floor(t/60)+":"+("0"+t%60).slice(-2)+")"}
+  n.textContent=(b>0?"Бонус к шансу: +"+b:"Штраф к шансу: −"+(-b))+"%"+s;
+}
+function setBuff(pct,secs){if(secs>0&&pct){buffPct=pct;buffUntil=Date.now()+secs*1000}upNote();if($("upOv").classList.contains("open")&&!upBusy)update()}
+function shLoad(p){
+  boostLvl=Math.max(0,Math.min(5,+p.boost_level||0));
+  framesOwned=Array.isArray(p.frames_owned)?p.frames_owned:[];
+  var ms=p.buff_until?Date.parse(p.buff_until)-Date.now():0;
+  if(ms>0&&+p.buff_pct){buffPct=+p.buff_pct;buffUntil=Date.now()+ms}else{buffPct=0;buffUntil=0}
+  upNote();
+}
+setInterval(function(){
+  if(!buffUntil)return;
+  if(Date.now()>=buffUntil){buffPct=0;buffUntil=0;if($("upOv").classList.contains("open")&&!upBusy)update();else upNote()}
+  else if($("upOv").classList.contains("open"))upNote();
+},1000);
+function sErr(e){
+  var m=String(e&&e.message||e);
+  if(/function|schema/i.test(m))return"На сервере нет магазина. Выполни supabase_shop.sql";
+  if(/funds/.test(m))return"Недостаточно средств";
+  if(/auth/.test(m))return"Войди в аккаунт";
+  if(/owned/.test(m))return"Уже куплено";
+  if(/order/.test(m))return"Сначала купи предыдущий уровень";
+  if(/crown/.test(m))return"Корону нельзя снять";
+  if(/Failed to fetch/i.test(m))return"Нет связи с сервером";
+  return"Ошибка: "+m;
+}
+async function shCall(name,args,msgId){
+  var m=$(msgId);m.style.color="";m.textContent="";
+  if(!sess){m.textContent="Войди в аккаунт, чтобы покупать";return null}
+  if(shBusy)return null;shBusy=true;
+  try{return await rpc(name,args)}
+  catch(e){m.textContent=sErr(e);return null}
+  finally{shBusy=false}
+}
+function shOk(id,t){var m=$(id);m.style.color="var(--green)";m.textContent=t}
+function sitem(title,desc,cls){var d=document.createElement("div");d.className="sitem"+(cls?" "+cls:"");d.innerHTML='<div><div class="si-t">'+title+'</div><div class="si-d">'+desc+'</div></div>';return d}
+
+$("pShop").onclick=function(){profView("shop")};
+document.querySelectorAll("[data-shopback]").forEach(function(b){b.onclick=function(){profView("shop")}});
+
+/* Рамки */
+function shRenderFr(){
+  var l=$("shFrList");l.innerHTML="";
+  SHOP_FR.forEach(function(f){
+    var eq=myFrame===f.k,own=eq||framesOwned.indexOf(f.k)>=0;
+    var d=sitem(f.i+" "+f.n,eq?"Надета":own?"Куплена":fmt(200),eq?"on":"");
+    var b=document.createElement("button");
+    if(eq){
+      b.textContent="Снять";b.className="alt";
+      b.onclick=async function(){
+        var r=await shCall("shop_set_frame",{f:"none"},"shFrMsg");if(!r)return;
+        myFrame=r.frame||null;framesOwned=r.frames_owned||[];updateFrame();shRenderFr();shOk("shFrMsg","Рамка снята");
+      };
+    }else if(own){
+      b.textContent="Надеть";b.className="alt";
+      b.onclick=async function(){
+        var r=await shCall("shop_set_frame",{f:f.k},"shFrMsg");if(!r)return;
+        myFrame=r.frame||null;framesOwned=r.frames_owned||[];updateFrame();shRenderFr();shOk("shFrMsg","Надета: "+f.n);
+      };
+    }else{
+      b.textContent="Купить";
+      b.onclick=async function(){
+        if(balance<200){$("shFrMsg").textContent="Недостаточно средств";return}
+        var r=await shCall("shop_buy_frame",{f:f.k},"shFrMsg");if(!r)return;
+        balance=+r.balance;setBal();myFrame=r.frame||null;framesOwned=r.frames_owned||[];updateFrame();shRenderFr();shOk("shFrMsg","Куплено: "+f.n);
+      };
+    }
+    d.appendChild(b);l.appendChild(d);
+  });
+}
+$("shRam").onclick=function(){$("shFrMsg").textContent="";shRenderFr();profView("shopfr")};
+
+/* Повышение шансов */
+function shRenderUp(){
+  var l=$("shUpList");l.innerHTML="";
+  BOOST.forEach(function(o,i){
+    var n=i+1,price=1000+500*i,have=n<=boostLvl,next=n===boostLvl+1;
+    var d=sitem("Уровень "+n+": +"+o.b+"% к шансам",have?"Куплен":fmt(price),have?"on":next?"":"locked");
+    var b=document.createElement("button");
+    b.textContent=have?"✓":next?"Купить":"🔒";b.disabled=!next;
+    if(next)b.onclick=async function(){
+      if(balance<price){$("shUpMsg").textContent="Недостаточно средств";return}
+      var r=await shCall("shop_buy_boost",{lvl:n},"shUpMsg");if(!r)return;
+      balance=+r.balance;setBal();boostLvl=+r.level;shRenderUp();upNote();
+      shOk("shUpMsg","Куплен уровень "+n+": +"+o.b+"% к шансам");
+    };
+    d.appendChild(b);l.appendChild(d);
+  });
+}
+$("shUp").onclick=function(){$("shUpMsg").textContent="";shRenderUp();profView("shopup")};
+
+/* Лаки боксы */
+var BX={
+ yesno:{n:"Да/Нет",c:500,d:"20% — «Да» (+2 000), 80% — «Нет» (проигрыш)",items:{
+  yes:{w:20,l:"Да",c:"b",t:"Выпало «Да»! Ты получил 2 000 Бурмалдакойнов"},
+  no:{w:80,l:"Нет",c:"l",t:"Выпало «Нет». Кейс оказался пустым"}}},
+ luck:{n:"Как пойдет",c:1000,d:"60% — плохое событие, 40% — хорошее. Что выпадет, никто не знает",items:{
+  l_b300:{w:25,l:"−300",c:"l",t:"С твоего счёта списано 300 Бурмалдакойнов"},
+  l_b700:{w:10,l:"−700",c:"l",t:"С твоего счёта списано 700 Бурмалдакойнов"},
+  l_bdebuff:{w:15,l:"−10%",c:"l",t:"В течение 5 минут твои шансы в Апгрейдере понижены на 10%"},
+  l_bnone:{w:10,l:"Пусто",c:"n",t:"Ничего не произошло. Просто пустой кейс"},
+  l_g1500:{w:15,l:"+1 500",c:"b",t:"Тебе зачислено 1 500 Бурмалдакойнов"},
+  l_g2500:{w:5,l:"+2 500",c:"b",t:"Тебе зачислено 2 500 Бурмалдакойнов"},
+  l_gbuff:{w:15,l:"+10%",c:"b",t:"В течение 5 минут твои шансы в Апгрейдере повышены на 10%"},
+  l_g800:{w:5,l:"+800",c:"b",t:"Тебе зачислено 800 Бурмалдакойнов"}}},
+ bum:{n:"Бомжара",c:100,d:"90% — что-то плохое, 9% — что-то хорошее, 1% — что-то очень крутое",items:{
+  b_empty:{w:40,l:"Пусто",c:"n",t:"Ты нашёл пустую банку. Больше ничего"},
+  b_m50:{w:25,l:"−50",c:"l",t:"Дыра в кармане: потеряно ещё 50 Бурмалдакойнов"},
+  b_m100:{w:15,l:"−100",c:"l",t:"Тебя обокрали: списано 100 Бурмалдакойнов"},
+  b_debuff:{w:10,l:"−5%",c:"l",t:"В течение 5 минут твои шансы в Апгрейдере понижены на 5%"},
+  b_g300:{w:5,l:"+300",c:"b",t:"Тебе зачислено 300 Бурмалдакойнов"},
+  b_g600:{w:3,l:"+600",c:"b",t:"Тебе зачислено 600 Бурмалдакойнов"},
+  b_gbuff:{w:1,l:"+5%",c:"b",t:"В течение 5 минут твои шансы в Апгрейдере повышены на 5%"},
+  b_s5000:{w:0.8,l:"+5 000",c:"c",t:"Невероятно! Тебе зачислено 5 000 Бурмалдакойнов"},
+  b_s10000:{w:0.2,l:"+10 000",c:"c",t:"НЕВЕРОЯТНО! Тебе зачислено 10 000 Бурмалдакойнов"}}}
+};
+function shRenderBox(){
+  var l=$("shBoxList");l.innerHTML="";
+  Object.keys(BX).forEach(function(k){
+    var o=BX[k],d=sitem(o.n+" · "+fmt(o.c),o.d);
+    var b=document.createElement("button");b.textContent="Купить";b.onclick=function(){openBox(k)};
+    d.appendChild(b);l.appendChild(d);
+  });
+}
+$("shBox").onclick=function(){shRenderBox();profView("shopbox")};
+function bxPick(def){var r=Math.random()*100,s=0,ks=Object.keys(def.items);for(var i=0;i<ks.length;i++){s+=def.items[ks[i]].w;if(r<s)return ks[i]}return ks[0]}
+function bxFill(box,win){
+  var def=BX[box],h="";
+  for(var i=0;i<60;i++){var k=(win&&i===50)?win:bxPick(def),it=def.items[k]||{c:"n",l:"?"};h+='<div class="lud-item '+it.c+'">'+it.l+'</div>'}
+  var s=$("boxStrip");s.style.transition="none";s.style.transform="translateX(0)";s.innerHTML=h;void s.offsetWidth;
+}
+function openBox(k){
+  boxCur=k;var d=BX[k];
+  $("boxT").textContent=d.n;$("boxInfo").textContent=d.d;$("boxErr").textContent="";
+  $("boxGo").textContent="Открыть за "+fmt(d.c);
+  $("boxOv").classList.add("open");
+  if(!boxBusy)bxFill(k);
+}
+function closeBox(){if(!boxBusy)$("boxOv").classList.remove("open")}
+$("closeBox").onclick=closeBox;
+$("boxOv").addEventListener("click",function(e){if(e.target===this)closeBox()});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closeBox()});
+$("boxGo").onclick=async function(){
+  var box=boxCur,d=BX[box],btn=this;if(!d||boxBusy)return;
+  if(!sess){$("boxErr").textContent="Войди в аккаунт, чтобы покупать";return}
+  if(d.c>balance){$("boxErr").textContent="Недостаточно средств";return}
+  $("boxErr").textContent="";boxBusy=true;btn.disabled=true;
+  var res;
+  try{res=await rpc("shop_open_box",{box:box})}catch(e){$("boxErr").textContent=sErr(e);boxBusy=false;btn.disabled=false;return}
+  var it=d.items[res.k]||{c:"n",l:"?",t:"Что-то произошло"};
+  balance-=d.c;setBal();bxFill(box,d.items[res.k]?res.k:null);
+  var s=$("boxStrip"),vw=s.parentNode.clientWidth;
+  var target=50*IW+(Math.random()*0.8+0.1)*IW-vw/2;
+  s.style.transition="transform 5s cubic-bezier(.1,.7,.1,1)";
+  s.style.transform="translateX(-"+target+"px)";
+  setTimeout(function(){
+    boxBusy=false;btn.disabled=false;balance=+res.balance;setBal();
+    setBuff(+res.buff_pct,+res.buff_secs);
+    var good=res.tier==="good"||res.tier==="super",r=$("resOv");r.classList.remove("win","lose");
+    r.classList.add(good?"win":"lose");
+    $("resT").textContent=box==="yesno"?(good?"Да!":"Нет"):res.tier==="super"?"ДЖЕКПОТ!":good?"Повезло!":"Не повезло";
+    $("resP").textContent=it.t;
+    r.classList.add("open");
+  },5200);
+};
 </script>
 </body>
 </html>
