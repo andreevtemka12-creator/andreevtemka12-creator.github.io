@@ -334,11 +334,8 @@ svg [fill="#12a64a"]{fill:var(--green2)}
 <div class="overlay" id="tgOv">
   <div class="modal" role="dialog" aria-label="Подписка" style="width:min(420px,100%);text-align:center">
     <h2 style="font-size:26px;line-height:1.25">Подпишись на наш ТГ канал, чтобы продолжить</h2>
+    <p class="ck-note" style="margin:0 0 16px">В этом канале будут проходить розыгрыши, раздаваться промокоды и не только.</p>
     <button class="go" id="tgGo">Подписаться</button>
-    <p class="ck-note" style="margin:16px 0 8px">Подписался? Нажми кнопку Telegram, чтобы проверить подписку.</p>
-    <div id="tgBox" style="display:flex;justify-content:center;min-height:44px"></div>
-    <div class="err" id="tgMsg"></div>
-    <button class="back" id="tgOut">Выйти из аккаунта</button>
   </div>
 </div>
 
@@ -418,7 +415,7 @@ function buildThemes(){var h="";THEMES.forEach(function(o){h+='<button class="th
 $("themes").addEventListener("click",function(e){var b=e.target.closest(".th");if(!b)return;curTheme=b.getAttribute("data-k");document.documentElement.setAttribute("data-skin",curTheme);saveProf();buildThemes()});
 function accRefresh(){var on=!!acct.id;$("idLine").hidden=!on;$("idV").textContent=acct.id||"";$("accOff").hidden=on;$("accOn").hidden=!on;$("accId").textContent=acct.id||"";$("pAcc").textContent=on?"Аккаунт":"Войти / Зарегистрироваться"}
 var devPass=null,devMode=1,upBusy=false,devActive=false,devTarget=null,devInfo=null,myFrame=null;
-function gErr(e){var m=String(e&&e.message||e);if(m==="tg"){tgOpen();return"Сначала подпишись на наш ТГ канал"}if(/funds/.test(m))return"Недостаточно средств";if(/auth/.test(m))return"Войди в аккаунт, чтобы играть";if(/bad bet/.test(m))return"Некорректная ставка";if(/Failed to fetch/i.test(m))return"Нет связи с сервером";if(/function|schema/i.test(m))return"На сервере нет игровых функций. Выполни supabase_secure.sql";return"Ошибка: "+m}
+function gErr(e){var m=String(e&&e.message||e);if(/funds/.test(m))return"Недостаточно средств";if(/auth/.test(m))return"Войди в аккаунт, чтобы играть";if(/bad bet/.test(m))return"Некорректная ставка";if(/Failed to fetch/i.test(m))return"Нет связи с сервером";if(/function|schema/i.test(m))return"На сервере нет игровых функций. Выполни supabase_secure.sql";return"Ошибка: "+m}
 function profView(v){["Menu","Name","Theme","Acc","Dev","DevId","DevMenu","DevForm","DevFrame","DevDel"].forEach(function(k){$("pv"+k).hidden=v!==k.toLowerCase()});$("profT").textContent={menu:"Профиль",name:"Изменить имя",theme:"Изменить тему",acc:"Аккаунт",dev:"Режим разработчика",devid:"Режим разработчика",devmenu:"Режим разработчика",devform:"Режим разработчика",devframe:"Выдать рамку",devdel:"Удалить аккаунт"}[v];if(v.indexOf("dev")!==0)devPass=null;accRefresh()}
 $("pAcc").onclick=function(){profView("acc")};
 function openProf(){profView("menu");$("profOv").classList.add("open")}
@@ -443,7 +440,7 @@ async function pPut(retry){var r=await fetch(SB+"/rest/v1/profiles?uid=eq."+sess
   if(r.status===401&&!retry){var j=await sbAuth("token?grant_type=refresh_token",{refresh_token:sess.ref});setSess(j,sess.id);return pPut(true)}return r}
 var lastBal=null;
 function syncRemote(){if(!sess)return;clearTimeout(sT);sT=setTimeout(function(){sT=null;pPut().catch(function(){})},600)}
-function applyP(p){if(!p)return;if(p.name)$("uname").textContent=p.name==="DIMASIK_PRO001"?"Слуга Бесса":String(p.name).slice(0,20);if(THEMES.some(function(t){return t.k===p.theme})){curTheme=p.theme;document.documentElement.setAttribute("data-skin",curTheme)}balance=+p.balance||0;setBal();myFrame=p.frame||null;updateFrame();ckRefresh();tgCheck(p);try{localStorage.setItem("depka_profile",JSON.stringify({name:$("uname").textContent,theme:curTheme}))}catch(e){}}
+function applyP(p){if(!p)return;if(p.name)$("uname").textContent=p.name==="DIMASIK_PRO001"?"Слуга Бесса":String(p.name).slice(0,20);if(THEMES.some(function(t){return t.k===p.theme})){curTheme=p.theme;document.documentElement.setAttribute("data-skin",curTheme)}balance=+p.balance||0;setBal();myFrame=p.frame||null;updateFrame();ckRefresh();try{localStorage.setItem("depka_profile",JSON.stringify({name:$("uname").textContent,theme:curTheme}))}catch(e){}}
 function saveProf(){try{localStorage.setItem("depka_profile",JSON.stringify({name:$("uname").textContent,theme:curTheme}))}catch(e){}syncRemote()}
 (function(){try{var p=JSON.parse(localStorage.getItem("depka_profile")||"null");if(p){if(typeof p.name==="string"&&p.name.trim())$("uname").textContent=p.name.slice(0,20);if(THEMES.some(function(t){return t.k===p.theme})){curTheme=p.theme;document.documentElement.setAttribute("data-skin",curTheme)}}}catch(e){}})();
 var balance=0;
@@ -553,7 +550,7 @@ $("accReg").onclick=async function(){
       var p0=await pGet();if(!p0)throw new Error("Аккаунт создан, но профиль не появился. Выполни supabase_secure.sql в Supabase");applyP(p0);
       break;
     }
-    $("regPw").value="";accRefresh();
+    $("regPw").value="";accRefresh();tgShow();
   }catch(e){$("accErr").textContent=nice(e.message)}
   b.disabled=false;
 };
@@ -749,35 +746,13 @@ $("ckGo").onclick=async function(){
 };
 setInterval(ckRefresh,60000);
 document.addEventListener("visibilitychange",function(){if(!document.hidden)ckRefresh()});
-var tgBuilt=false;
-function tgOpen(){
-  $("tgMsg").textContent="";$("tgMsg").style.color="";$("tgOv").classList.add("open");
-  if(!tgBuilt){
-    tgBuilt=true;
-    var sc=document.createElement("script");sc.async=true;sc.src="https://telegram.org/js/telegram-widget.js?22";
-    sc.setAttribute("data-telegram-login","BurmalDimaVerification_bot");
-    sc.setAttribute("data-size","large");sc.setAttribute("data-radius","14");
-    sc.setAttribute("data-onauth","onTgAuth(user)");
-    $("tgBox").appendChild(sc);
-  }
-}
-function tgCheck(p){if(p.tg_ok===true)$("tgOv").classList.remove("open");else tgOpen()}
-$("tgGo").onclick=function(){window.open("https://t.me/BurmalDimaOficcial","_blank","noopener")};
-$("tgOut").onclick=function(){$("accOut").click()};
-async function tgCall(user,retry){
-  var r=await fetch(SB+"/functions/v1/tg-verify",{method:"POST",headers:sbH(sess.tok),body:JSON.stringify({auth:user})});
-  if(r.status===401&&!retry){var j=await sbAuth("token?grant_type=refresh_token",{refresh_token:sess.ref});setSess(j,sess.id);return tgCall(user,true)}
-  return r;
-}
-async function onTgAuth(user){
-  var m=$("tgMsg");m.style.color="";m.textContent="Проверяю подписку…";
-  try{
-    var r=await tgCall(user),d=await r.json().catch(function(){return{}});
-    if(d.ok){m.style.color="var(--green)";m.textContent="Готово!";$("tgOv").classList.remove("open");ckRefresh();return}
-    var T={not_subscribed:"Подписки не найдено. Подпишись на канал и нажми кнопку Telegram ещё раз",taken:"Этот Telegram уже привязан к другому аккаунту",bad_auth:"Не удалось подтвердить вход через Telegram, попробуй ещё раз",bot:"Бот не может проверить канал: он должен быть администратором канала",config:"На сервере не настроен токен бота",auth:"Сессия устарела, войди в аккаунт заново"};
-    m.textContent=T[d.reason]||"Ошибка проверки, попробуй позже";
-  }catch(e){m.textContent=/Failed to fetch/i.test(String(e.message))?"Нет связи с сервером или функция tg-verify не создана":"Ошибка: "+e.message}
-}
+function tgShow(){try{localStorage.setItem("bd_tg_"+acct.id,"1")}catch(e){}$("tgOv").classList.add("open")}
+$("tgGo").onclick=function(){
+  window.open("https://t.me/BurmalDimaOficcial","_blank","noopener");
+  try{localStorage.removeItem("bd_tg_"+acct.id)}catch(e){}
+  $("tgOv").classList.remove("open");
+};
+try{if(sess&&localStorage.getItem("bd_tg_"+sess.id))$("tgOv").classList.add("open")}catch(e){}
 </script>
 </body>
 </html>
