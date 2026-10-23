@@ -312,25 +312,21 @@ $("want").addEventListener("input",update);
 $("openUp").onclick=function(){$("upOv").classList.add("open");update()};
 $("closeUp").onclick=function(){$("upOv").classList.remove("open")};
 $("upOv").addEventListener("click",function(e){if(e.target===this)this.classList.remove("open")});
-$("go").onclick=function(){
+$("go").onclick=async function(){
   var c=update();if(!c)return;
-  if(c.bet>balance){$("err").textContent="Недостаточно средств. Пополни баланс";return}
-  balance-=c.bet;setBal();
-  var btn=$("go");btn.disabled=true;$("upModal").classList.add("spinning");
+  if(!sess){$("err").textContent="Войди в аккаунт, чтобы играть";return}
+  if(c.bet>balance){$("err").textContent="Недостаточно средств";return}
+  var btn=$("go"),res;btn.disabled=true;upBusy=true;
+  try{res=await rpc("play_upgrade",{bet:c.bet,want:c.want})}catch(e){$("err").textContent=gErr(e);btn.disabled=false;upBusy=false;return}
+  balance-=c.bet;setBal();$("upModal").classList.add("spinning");
   setTimeout(function(){
-    $("upModal").classList.remove("spinning");btn.disabled=false;
-    var r=$("resOv"),win=Math.random()*100<c.chance;
-    r.classList.remove("win","lose");
-    if(win){
-      r.classList.add("win");$("resT").textContent="Повезло!";
-      balance+=c.want;setBal();$("resP").textContent="Ты получил "+fmt(c.want);
-    }else{
+    $("upModal").classList.remove("spinning");btn.disabled=false;upBusy=false;
+    var r=$("resOv");r.classList.remove("win","lose");
+    balance=+res.balance;setBal();
+    if(res.win){r.classList.add("win");$("resT").textContent="Повезло!";$("resP").textContent="Ты получил "+fmt(+res.pay)}
+    else{
       r.classList.add("lose");$("resT").textContent="Не повезло";
-      if(Math.random()<0.1){
-        balance+=c.bet*0.1;setBal();$("resP").textContent="Но тебе выплатили компенсацию: "+fmt(c.bet*0.1)+" (10% от проигранного)";
-      }else{
-        $("resP").textContent="Ставка "+fmt(c.bet)+" сгорела";
-      }
+      $("resP").textContent=res.comp>0?"Но тебе выплатили компенсацию: "+fmt(+res.comp)+" (10% от проигранного)":"Ставка "+fmt(c.bet)+" сгорела";
     }
     r.classList.add("open");
   },1100);
@@ -346,7 +342,8 @@ var curTheme="green";
 function buildThemes(){var h="";THEMES.forEach(function(o){h+='<button class="th'+(o.k===curTheme?' on':'')+'" data-k="'+o.k+'" style="background:'+o.bg+';color:'+o.t+'"><span class="dots"><i style="background:'+o.a+'"></i><i style="background:'+o.b+'"></i></span>'+o.n+'</button>'});$("themes").innerHTML=h}
 $("themes").addEventListener("click",function(e){var b=e.target.closest(".th");if(!b)return;curTheme=b.getAttribute("data-k");document.documentElement.setAttribute("data-skin",curTheme);saveProf();buildThemes()});
 function accRefresh(){var on=!!acct.id;$("idLine").hidden=!on;$("idV").textContent=acct.id||"";$("accOff").hidden=on;$("accOn").hidden=!on;$("accId").textContent=acct.id||"";$("pAcc").textContent=on?"Аккаунт":"Войти / Зарегистрироваться"}
-var devPass=null,devMode=1;
+var devPass=null,devMode=1,upBusy=false;
+function gErr(e){var m=String(e&&e.message||e);if(/funds/.test(m))return"Недостаточно средств";if(/auth/.test(m))return"Войди в аккаунт, чтобы играть";if(/bad bet/.test(m))return"Некорректная ставка";if(/Failed to fetch/i.test(m))return"Нет связи с сервером";if(/function|schema/i.test(m))return"На сервере нет игровых функций. Выполни supabase_secure.sql";return"Ошибка: "+m}
 function profView(v){["Menu","Name","Theme","Acc","Dev","DevMenu","DevForm"].forEach(function(k){$("pv"+k).hidden=v!==k.toLowerCase()});$("profT").textContent={menu:"Профиль",name:"Изменить имя",theme:"Изменить тему",acc:"Аккаунт",dev:"Режим разработчика",devmenu:"Режим разработчика",devform:"Режим разработчика"}[v];if(v.indexOf("dev")!==0)devPass=null;accRefresh()}
 $("pAcc").onclick=function(){profView("acc")};
 function openProf(){profView("menu");$("profOv").classList.add("open")}
@@ -367,16 +364,15 @@ async function sbAuth(path,body){var r=await fetch(SB+"/auth/v1/"+path,{method:"
 function mail(id){return "u"+id+"@burmaldima.app"}
 function setSess(j,id){sess={tok:j.access_token,ref:j.refresh_token,uid:j.user.id,id:id};try{localStorage.setItem("bd_sess",JSON.stringify(sess))}catch(e){}acct.id=id}
 async function pGet(retry){var r=await fetch(SB+"/rest/v1/profiles?select=*&uid=eq."+sess.uid,{headers:sbH(sess.tok)});if(r.status===401&&!retry){var j=await sbAuth("token?grant_type=refresh_token",{refresh_token:sess.ref});setSess(j,sess.id);return pGet(true)}if(!r.ok)return null;return (await r.json())[0]||null}
-function pRow(){return {uid:sess.uid,public_id:sess.id,name:$("uname").textContent,theme:curTheme,balance:balance}}
-async function pPut(retry){var r=await fetch(SB+"/rest/v1/profiles?on_conflict=uid",{method:"POST",headers:Object.assign(sbH(sess.tok),{Prefer:"resolution=merge-duplicates,return=minimal"}),body:JSON.stringify(pRow())});
+async function pPut(retry){var r=await fetch(SB+"/rest/v1/profiles?uid=eq."+sess.uid,{method:"PATCH",headers:sbH(sess.tok),body:JSON.stringify({name:$("uname").textContent,theme:curTheme})});
   if(r.status===401&&!retry){var j=await sbAuth("token?grant_type=refresh_token",{refresh_token:sess.ref});setSess(j,sess.id);return pPut(true)}return r}
-var lastBal=null,inflight=false;
-function syncRemote(){if(!sess)return;clearTimeout(sT);sT=setTimeout(function(){sT=null;inflight=true;var sent=balance;pPut().then(function(r){if(r&&r.ok)lastBal=sent}).catch(function(){}).then(function(){inflight=false})},600)}
-function applyP(p){if(!p)return;if(p.name)$("uname").textContent=p.name==="DIMASIK_PRO001"?"Слуга Бесса":String(p.name).slice(0,20);if(THEMES.some(function(t){return t.k===p.theme})){curTheme=p.theme;document.documentElement.setAttribute("data-skin",curTheme)}balance=+p.balance||0;lastBal=balance;setBal(true);try{localStorage.setItem("depka_profile",JSON.stringify({name:$("uname").textContent,theme:curTheme}))}catch(e){}}
+var lastBal=null;
+function syncRemote(){if(!sess)return;clearTimeout(sT);sT=setTimeout(function(){sT=null;pPut().catch(function(){})},600)}
+function applyP(p){if(!p)return;if(p.name)$("uname").textContent=p.name==="DIMASIK_PRO001"?"Слуга Бесса":String(p.name).slice(0,20);if(THEMES.some(function(t){return t.k===p.theme})){curTheme=p.theme;document.documentElement.setAttribute("data-skin",curTheme)}balance=+p.balance||0;setBal();try{localStorage.setItem("depka_profile",JSON.stringify({name:$("uname").textContent,theme:curTheme}))}catch(e){}}
 function saveProf(){try{localStorage.setItem("depka_profile",JSON.stringify({name:$("uname").textContent,theme:curTheme}))}catch(e){}syncRemote()}
 (function(){try{var p=JSON.parse(localStorage.getItem("depka_profile")||"null");if(p){if(typeof p.name==="string"&&p.name.trim())$("uname").textContent=p.name.slice(0,20);if(THEMES.some(function(t){return t.k===p.theme})){curTheme=p.theme;document.documentElement.setAttribute("data-skin",curTheme)}}}catch(e){}})();
 var balance=0;
-function setBal(skip){balance=Math.round(balance*100)/100;$("balV").textContent=fmt(balance);if(!skip)syncRemote()}
+function setBal(){balance=Math.round(balance*100)/100;$("balV").textContent=fmt(balance)}
 var LUD=[{t:"Проиграл",m:0,w:50,c:"l"},{t:"x1,5",m:1.5,w:30,c:"a"},{t:"x2",m:2,w:15,c:"b"},{t:"x3",m:3,w:5,c:"c"}];
 var ludBusy=false,IW=120;
 function ludPick(){var r=Math.random()*100,s=0;for(var i=0;i<LUD.length;i++){s+=LUD[i].w;if(r<s)return LUD[i]}return LUD[0]}
@@ -389,20 +385,24 @@ $("openLud").onclick=function(){$("ludOv").classList.add("open");$("ludErr").tex
 function closeLud(){if(!ludBusy)$("ludOv").classList.remove("open")}
 $("closeLud").onclick=closeLud;
 $("ludOv").addEventListener("click",function(e){if(e.target===this)closeLud()});
-$("ludGo").onclick=function(){
+$("ludGo").onclick=async function(){
   var bet=parseFloat($("ludBet").value);
   if(!(bet>0)){$("ludErr").textContent="Введи ставку больше нуля";return}
-  if(bet>balance){$("ludErr").textContent="Недостаточно средств. Пополни баланс";return}
-  balance-=bet;setBal();$("ludErr").textContent="";ludBusy=true;$("ludGo").disabled=true;
-  var win=ludPick();ludFill(win);
+  if(!sess){$("ludErr").textContent="Войди в аккаунт, чтобы играть";return}
+  if(bet>balance){$("ludErr").textContent="Недостаточно средств";return}
+  $("ludErr").textContent="";ludBusy=true;$("ludGo").disabled=true;
+  var res;
+  try{res=await rpc("play_lud",{bet:bet})}catch(e){$("ludErr").textContent=gErr(e);ludBusy=false;$("ludGo").disabled=false;return}
+  var win=LUD.filter(function(o){return o.m===+res.m})[0]||LUD[0];
+  balance-=bet;setBal();ludFill(win);
   var s=$("ludStrip"),vw=s.parentNode.clientWidth;
   var target=50*IW+(Math.random()*0.8+0.1)*IW-vw/2;
   s.style.transition="transform 5s cubic-bezier(.1,.7,.1,1)";
   s.style.transform="translateX(-"+target+"px)";
   setTimeout(function(){
-    ludBusy=false;$("ludGo").disabled=false;
+    ludBusy=false;$("ludGo").disabled=false;balance=+res.balance;setBal();
     var r=$("resOv");r.classList.remove("win","lose");
-    if(win.m>0){r.classList.add("win");$("resT").textContent="Повезло!";balance+=bet*win.m;setBal();$("resP").textContent="Выпало "+win.t+". Ты получил "+fmt(bet*win.m)}
+    if(win.m>0){r.classList.add("win");$("resT").textContent="Повезло!";$("resP").textContent="Выпало "+win.t+". Ты получил "+fmt(+res.pay)}
     else{r.classList.add("lose");$("resT").textContent="Проиграл";$("resP").textContent="Ставка "+fmt(bet)+" сгорела"}
     r.classList.add("open");
   },5200);
@@ -415,35 +415,50 @@ $("openSt").onclick=function(){$("stOv").classList.add("open");$("stErr").textCo
 $("closeSt").onclick=closeSt;
 $("stOv").addEventListener("click",function(e){if(e.target===this)closeSt()});
 document.addEventListener("keydown",function(e){if(e.key==="Escape")closeSt()});
-function stEnd(win){
-  clearInterval(stT);stRun=false;$("stOv").classList.remove("running");
+var stT0=0,stPoll=null,stSettling=false,stPolling=false;
+function stMultAt(){var t=(performance.now()-stT0)/1000;return Math.floor((2*Math.exp(t/12)-1)*100)/100}
+function stFinish(res){
+  if(!stRun)return;
+  clearInterval(stT);clearInterval(stPoll);stRun=false;stSettling=false;$("stOv").classList.remove("running");
   $("stStop").hidden=true;$("stGo").hidden=false;$("stBetBox").hidden=false;
   var b=$("stBike"),r=$("resOv");r.classList.remove("win","lose");
+  var win=res.state==="won";
   if(win){
-    var got=Math.round(stBet*stM*100)/100;b.style.transform="rotate(0deg)";
-    balance+=got;setBal();r.classList.add("win");$("resT").textContent="Повезло!";$("resP").textContent="Остановил на x"+stM.toFixed(2)+". Ты получил "+fmt(got);
+    stSet(+res.m);b.style.transform="rotate(0deg)";balance=+res.balance;setBal();
+    r.classList.add("win");$("resT").textContent="Повезло!";$("resP").textContent="Остановил на x"+(+res.m).toFixed(2)+". Ты получил "+fmt(+res.pay);
   }else{
-    b.classList.add("crash");b.style.transform="translate(-25px,0) rotate(-115deg)";
+    stSet(+res.crash||stM);b.classList.add("crash");b.style.transform="translate(-25px,0) rotate(-115deg)";
+    if(res.balance!=null){balance=+res.balance;setBal()}
     r.classList.add("lose");$("resT").textContent="Упал!";$("resP").textContent="Оборвалось на x"+stM.toFixed(2)+". Ставка "+fmt(stBet)+" сгорела";
   }
   setTimeout(function(){r.classList.add("open")},win?700:900);
 }
-$("stGo").onclick=function(){
-  var bet=parseFloat($("stBet").value);
+$("stGo").onclick=async function(){
+  var bet=parseFloat($("stBet").value),g=this;
   if(!(bet>0)){$("stErr").textContent="Введи ставку больше нуля";return}
-  if(bet>balance){$("stErr").textContent="Недостаточно средств. Пополни баланс";return}
-  balance-=bet;setBal();stBet=bet;$("stErr").textContent="";
-  var b=$("stBike");b.classList.remove("crash");b.style.transform="rotate(0deg)";void b.getBoundingClientRect();
-  stCrash=Math.max(1,Math.min(100,0.95/(Math.random()||1e-9))); // P(дойти до x)=95%/x, возврат ~95%
-  stSet(1);stRun=true;$("stOv").classList.add("running");
+  if(!sess){$("stErr").textContent="Войди в аккаунт, чтобы играть";return}
+  if(bet>balance){$("stErr").textContent="Недостаточно средств";return}
+  g.disabled=true;$("stErr").textContent="";
+  var t1=performance.now(),res;
+  try{res=await rpc("stunt_start",{bet:bet})}catch(e){$("stErr").textContent=gErr(e);g.disabled=false;return}
+  g.disabled=false;stT0=(t1+performance.now())/2;balance=+res.balance;setBal();stBet=bet;
+  var bk=$("stBike");bk.classList.remove("crash");bk.style.transform="rotate(0deg)";void bk.getBoundingClientRect();
+  stSet(1);stRun=true;stSettling=false;$("stOv").classList.add("running");
   $("stGo").hidden=true;$("stBetBox").hidden=true;$("stStop").hidden=false;
-  b.style.transform="rotate(-38deg)";
-  stT=setInterval(function(){
-    var step=0.01*(1+(stM-1)*0.5),nx=stM+step;
-    if(nx>=stCrash){stSet(Math.max(1,Math.floor(stCrash*100)/100));stEnd(false)}else stSet(nx);
-  },60);
+  bk.style.transform="rotate(-38deg)";
+  stT=setInterval(function(){if(stRun&&!stSettling)stSet(Math.max(1,stMultAt()))},50);
+  stPoll=setInterval(async function(){
+    if(!stRun||stSettling||stPolling)return;stPolling=true;
+    try{var p=await rpc("stunt_poll",{});if(p.state==="crashed"&&stRun&&!stSettling){stSettling=true;stFinish(p)}}catch(e){}
+    stPolling=false;
+  },250);
 };
-$("stStop").onclick=function(){if(stRun)stEnd(true)};
+$("stStop").onclick=async function(){
+  if(!stRun||stSettling)return;stSettling=true;var b=this;b.disabled=true;
+  try{var res=await rpc("stunt_stop",{});stFinish(res.state==="none"?{state:"crashed",crash:stM}:res)}
+  catch(e){stSettling=false;$("stErr").textContent=gErr(e)}
+  b.disabled=false;
+};
 document.addEventListener("keydown",function(e){if(e.key==="Escape"){$("resOv").classList.remove("open");$("upOv").classList.remove("open");$("profOv").classList.remove("open");closeLud()}});
 
 function accTab(reg){$("boxReg").hidden=!reg;$("boxLog").hidden=reg;$("tabReg").classList.toggle("on",reg);$("tabLog").classList.toggle("on",!reg);$("accErr").textContent=""}
@@ -460,7 +475,7 @@ $("accReg").onclick=async function(){
       catch(e){if(/already|registered/i.test(e.message)&&i<5)continue;throw e}
       if(!j.access_token)throw new Error("В Supabase отключи подтверждение почты (Auth → Providers → Email)");
       setSess(j,id);
-      var r=await pPut();lastBal=balance;if(!r.ok)throw new Error("Аккаунт создан, но профиль не сохранился. Проверь таблицу profiles в Supabase");
+      var p0=await pGet();if(!p0)throw new Error("Аккаунт создан, но профиль не появился. Выполни supabase_secure.sql в Supabase");applyP(p0);
       break;
     }
     $("regPw").value="";accRefresh();
@@ -474,7 +489,7 @@ $("accLogin").onclick=async function(){
   try{
     var j=await sbAuth("token?grant_type=password",{email:mail(id),password:pw});
     setSess(j,id);var p=await pGet();
-    if(p)applyP(p);else await pPut();
+    if(p)applyP(p);else throw new Error("Профиль не найден. Выполни supabase_secure.sql в Supabase");
     $("logPw").value="";accRefresh();
   }catch(e){$("accErr").textContent=nice(e.message)}
   b.disabled=false;
@@ -503,21 +518,24 @@ $("openSl").onclick=function(){$("slOv").classList.add("open");$("slErr").textCo
 $("closeSl").onclick=closeSl;
 $("slOv").addEventListener("click",function(e){if(e.target===this)closeSl()});
 document.addEventListener("keydown",function(e){if(e.key==="Escape")closeSl()});
-$("slGo").onclick=function(){
+$("slGo").onclick=async function(){
   var bet=parseFloat($("slBet").value);
   if(!(bet>0)){$("slErr").textContent="Введи ставку больше нуля";return}
-  if(bet>balance){$("slErr").textContent="Недостаточно средств. Пополни баланс";return}
-  balance-=bet;setBal();$("slErr").textContent="";slBusy=true;$("slGo").disabled=true;
-  var o=slPick(),fin=slReels(o),cells=[$("sl0"),$("sl1"),$("sl2")],ts=[];
+  if(!sess){$("slErr").textContent="Войди в аккаунт, чтобы играть";return}
+  if(bet>balance){$("slErr").textContent="Недостаточно средств";return}
+  $("slErr").textContent="";slBusy=true;$("slGo").disabled=true;
+  var res;
+  try{res=await rpc("play_slots",{bet:bet})}catch(e){$("slErr").textContent=gErr(e);slBusy=false;$("slGo").disabled=false;return}
+  balance-=bet;setBal();
+  var o={k:res.k,m:+res.m},fin=slReels(o),cells=[$("sl0"),$("sl1"),$("sl2")],ts=[];
   cells.forEach(function(c,i){
     c.classList.add("spin");
     ts[i]=setInterval(function(){slSet(c,slR(SL_SYM))},70);
     setTimeout(function(){clearInterval(ts[i]);c.classList.remove("spin");slSet(c,fin[i])},800+i*500);
   });
   setTimeout(function(){
-    slBusy=false;$("slGo").disabled=false;
-    var got=Math.round(bet*o.m*100)/100,r=$("resOv");r.classList.remove("win","lose");
-    if(got>0){balance+=got;setBal()}
+    slBusy=false;$("slGo").disabled=false;balance=+res.balance;setBal();
+    var got=+res.pay,r=$("resOv");r.classList.remove("win","lose");
     if(o.m>=1){r.classList.add("win");$("resT").textContent=o.k==="777"?"ДЖЕКПОТ!":"Повезло!";$("resP").textContent="x"+o.m+". Ты получил "+fmt(got)}
     else if(got>0){r.classList.add("lose");$("resT").textContent="Почти!";$("resP").textContent="Две вишни: вернулась половина ставки, "+fmt(got)}
     else{r.classList.add("lose");$("resT").textContent="Проиграл";$("resP").textContent="Ставка "+fmt(bet)+" сгорела"}
@@ -555,15 +573,16 @@ $("devDo").onclick=async function(){
   b.disabled=true;m.textContent="";
   try{
     var nb=await rpc("admin_adjust",{pw:devPass,target:id,delta:devMode*amt});
-    if(id===acct.id){balance=+nb;lastBal=balance;setBal(true)}
+    if(id===acct.id){balance=+nb;setBal()}
     m.style.color="var(--green)";m.textContent="Готово. Баланс аккаунта "+id+": "+fmt(+nb);
     $("devAmt").value="";
   }catch(e){m.textContent=/not found/i.test(e.message)?"Аккаунт с таким ID не найден":/bad password/i.test(e.message)?"Пароль не подошёл":/Failed to fetch/i.test(e.message)?"Нет связи с сервером":"Ошибка: "+e.message}
   b.disabled=false;
 };
+function gameBusy(){return ludBusy||slBusy||stRun||upBusy}
 async function pollBal(){
-  if(!sess||sT||inflight||document.hidden)return;
-  try{var p=await pGet();if(p&&!sT&&!inflight&&(+p.balance||0)!==lastBal){balance=+p.balance||0;lastBal=balance;setBal(true)}}catch(e){}
+  if(!sess||document.hidden||gameBusy())return;
+  try{var p=await pGet();if(p&&!gameBusy()&&(+p.balance||0)!==balance){balance=+p.balance||0;setBal()}}catch(e){}
 }
 setInterval(pollBal,8000);
 document.addEventListener("visibilitychange",pollBal);
