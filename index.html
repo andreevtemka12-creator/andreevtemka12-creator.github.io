@@ -112,16 +112,24 @@ svg [fill="#12a64a"]{fill:var(--green2)}
 .sl-cell.s7{color:#ff3b3b;font-size:60px;font-family:Impact,"Arial Black",sans-serif}
 .sl-cell.spin{filter:blur(1.5px);border-color:var(--green)}
 .sl-pay{color:var(--mute);font-size:14px;text-align:center;line-height:1.6;margin:0 0 12px}
+.bal b{white-space:nowrap}.cur{font-size:11px;font-weight:700;color:var(--mute)}
+.av-wrap{position:relative;display:inline-block;line-height:0;margin-top:8px}
+.frame-badge{position:absolute;top:-17px;left:50%;transform:translateX(-50%) rotate(-10deg);font-size:22px;line-height:1;pointer-events:none;filter:drop-shadow(0 2px 3px #000)}
+.avatar.frame-gold{border-color:var(--gold);box-shadow:0 0 0 3px #0a1f13,0 0 0 5px var(--gold),0 0 16px var(--gold)}
+.ring svg.ptr{position:absolute;inset:0;transform:none}
+#ptr{transform-box:view-box;transform-origin:65px 65px;transition:transform 3.6s cubic-bezier(.1,.6,.15,1)}
+.devwho{margin-bottom:12px;color:var(--mute);text-align:center;font-size:14px;line-height:1.5}
+.flist{display:grid;gap:8px}
 </style>
 </head>
 <body>
 <header>
-  <button class="bal" id="balBtn" aria-label="Баланс"><small>Баланс</small><b id="balV">0 ДИМ</b></button>
+  <button class="bal" id="balBtn" aria-label="Баланс"><small>Баланс</small><b id="balV">0 <span class="cur">ДИМкойнов</span></b></button>
   <h1>БурмалДима</h1>
   <div class="user">
     
     <span class="uname"><span style="color:var(--mute)">Имя: </span><span id="uname">Слуга Бесса</span></span>
-    <svg class="avatar" id="avatarBtn" role="button" tabindex="0" viewBox="0 0 52 52" aria-label="Профиль"><circle cx="26" cy="20" r="9" fill="#2bff7a"/><path d="M8 46c2-11 10-15 18-15s16 4 18 15" fill="#2bff7a"/></svg>
+    <span class="av-wrap"><svg class="avatar" id="avatarBtn" role="button" tabindex="0" viewBox="0 0 52 52" aria-label="Профиль"><circle cx="26" cy="20" r="9" fill="#2bff7a"/><path d="M8 46c2-11 10-15 18-15s16 4 18 15" fill="#2bff7a"/></svg><span class="frame-badge" id="frameBadge" hidden></span></span>
   </div>
 </header>
 
@@ -155,6 +163,7 @@ svg [fill="#12a64a"]{fill:var(--green2)}
       <div class="mid">
         <div class="ring">
           <svg viewBox="0 0 130 130"><circle cx="65" cy="65" r="54" fill="none" stroke="#1f3a29" stroke-width="12"/><circle id="arc" cx="65" cy="65" r="54" fill="none" stroke="#2bff7a" stroke-width="12" stroke-linecap="round" stroke-dasharray="339.3" stroke-dashoffset="169.6"/></svg>
+          <svg class="ptr" viewBox="0 0 130 130" aria-hidden="true"><g id="ptr"><path d="M65 18L57 33H73Z" fill="#fff"/></g></svg>
           <div class="pct" id="pct">50%</div>
         </div>
         <small id="mult">x2</small>
@@ -211,17 +220,38 @@ svg [fill="#12a64a"]{fill:var(--green2)}
       <div class="err" id="devErr"></div>
       <button class="back" data-back>Назад</button>
     </div>
-    <div id="pvDevMenu" hidden>
-      <button class="pitem" id="devUp">Накрутить</button>
-      <button class="pitem" id="devDown">Скрутить</button>
+    <div id="pvDevId" hidden>
+      <p style="color:var(--mute);margin:0 0 12px">Введи ID аккаунта, с которым хочешь работать.</p>
+      <div class="field"><label for="devId">ID аккаунта</label><input id="devId" type="text" inputmode="numeric" maxlength="6" autocomplete="off"></div>
+      <button class="go" id="devIdGo" style="margin-top:0">Дальше</button>
+      <div class="err" id="devIdErr"></div>
       <button class="back" data-back>Назад</button>
     </div>
+    <div id="pvDevMenu" hidden>
+      <div class="devwho" id="devWho"></div>
+      <button class="pitem" id="devUp">Накрутить</button>
+      <button class="pitem" id="devDown">Скрутить</button>
+      <button class="pitem" id="devFrame">Выдать рамку</button>
+      <button class="pitem" id="devDelete">Удалить аккаунт</button>
+      <button class="back" id="devMenuBack">Другой аккаунт</button>
+    </div>
     <div id="pvDevForm" hidden>
-      <div class="field"><label for="devId">ID аккаунта</label><input id="devId" type="text" inputmode="numeric" maxlength="6" autocomplete="off"></div>
       <div class="field"><label for="devAmt">Сумма, ДИМкойны</label><input id="devAmt" type="number" min="1" inputmode="numeric" autocomplete="off"></div>
       <button class="go" id="devDo" style="margin-top:0">Выполнить</button>
       <div class="err" id="devMsg"></div>
       <button class="back" id="devBack">Назад</button>
+    </div>
+    <div id="pvDevFrame" hidden>
+      <div class="flist" id="frameList"></div>
+      <div class="err" id="frMsg"></div>
+      <button class="back" id="frBack">Назад</button>
+    </div>
+    <div id="pvDevDel" hidden>
+      <p style="color:var(--mute);margin:0 0 12px" id="delTxt"></p>
+      <div class="field"><label for="delPw">Пароль разработчика</label><input id="delPw" type="password" autocomplete="off"></div>
+      <button class="go" id="delGo" style="margin-top:0;background:#ff4d4d;color:#fff">Удалить</button>
+      <div class="err" id="delMsg"></div>
+      <button class="back" id="delBack">Назад</button>
     </div>
     <div id="pvTheme" hidden>
       <div class="themes" id="themes"></div>
@@ -284,7 +314,9 @@ svg [fill="#12a64a"]{fill:var(--green2)}
 
 <script>
 var $=function(i){return document.getElementById(i)};
-var fmt=function(n){return n.toLocaleString("ru-RU",{maximumFractionDigits:2})+" ДИМ"};
+function numTxt(n){return n.toLocaleString("ru-RU",{maximumFractionDigits:2})}
+function dimWord(n){var a=Math.abs(n);if(a%1)return"ДИМкойна";var i=a%100,j=a%10;if(i>=11&&i<=14)return"ДИМкойнов";if(j===1)return"ДИМкойн";if(j>=2&&j<=4)return"ДИМкойна";return"ДИМкойнов"}
+var fmt=function(n){return numTxt(n)+" "+dimWord(n)};
 var C=2*Math.PI*54;
 function calc(){
   var bet=parseFloat($("bet").value),want=parseFloat($("want").value);
@@ -312,15 +344,20 @@ $("want").addEventListener("input",update);
 $("openUp").onclick=function(){$("upOv").classList.add("open");update()};
 $("closeUp").onclick=function(){$("upOv").classList.remove("open")};
 $("upOv").addEventListener("click",function(e){if(e.target===this)this.classList.remove("open")});
+var ptrAng=0;
 $("go").onclick=async function(){
   var c=update();if(!c)return;
   if(!sess){$("err").textContent="Войди в аккаунт, чтобы играть";return}
   if(c.bet>balance){$("err").textContent="Недостаточно средств";return}
   var btn=$("go"),res;btn.disabled=true;upBusy=true;
   try{res=await rpc("play_upgrade",{bet:c.bet,want:c.want})}catch(e){$("err").textContent=gErr(e);btn.disabled=false;upBusy=false;return}
-  balance-=c.bet;setBal();$("upModal").classList.add("spinning");
+  balance-=c.bet;setBal();$("bet").disabled=true;$("want").disabled=true;
+  var A=c.chance/100*360,t;
+  if(res.win)t=A*(0.12+Math.random()*0.76);else t=A+9+Math.random()*Math.max(0,351-A-9);
+  var d=((t-ptrAng%360)+360)%360;ptrAng+=360*5+d;
+  $("ptr").style.transform="rotate("+ptrAng+"deg)";
   setTimeout(function(){
-    $("upModal").classList.remove("spinning");btn.disabled=false;upBusy=false;
+    btn.disabled=false;upBusy=false;$("bet").disabled=false;$("want").disabled=false;
     var r=$("resOv");r.classList.remove("win","lose");
     balance=+res.balance;setBal();
     if(res.win){r.classList.add("win");$("resT").textContent="Повезло!";$("resP").textContent="Ты получил "+fmt(+res.pay)}
@@ -329,7 +366,7 @@ $("go").onclick=async function(){
       $("resP").textContent=res.comp>0?"Но тебе выплатили компенсацию: "+fmt(+res.comp)+" (10% от проигранного)":"Ставка "+fmt(c.bet)+" сгорела";
     }
     r.classList.add("open");
-  },1100);
+  },3800);
 };
 var THEMES=[
 {k:"green",n:"Чёрно-зелёная",bg:"#050806",a:"#2bff7a",b:"#12a64a",t:"#e8f5ec"},
@@ -342,9 +379,9 @@ var curTheme="green";
 function buildThemes(){var h="";THEMES.forEach(function(o){h+='<button class="th'+(o.k===curTheme?' on':'')+'" data-k="'+o.k+'" style="background:'+o.bg+';color:'+o.t+'"><span class="dots"><i style="background:'+o.a+'"></i><i style="background:'+o.b+'"></i></span>'+o.n+'</button>'});$("themes").innerHTML=h}
 $("themes").addEventListener("click",function(e){var b=e.target.closest(".th");if(!b)return;curTheme=b.getAttribute("data-k");document.documentElement.setAttribute("data-skin",curTheme);saveProf();buildThemes()});
 function accRefresh(){var on=!!acct.id;$("idLine").hidden=!on;$("idV").textContent=acct.id||"";$("accOff").hidden=on;$("accOn").hidden=!on;$("accId").textContent=acct.id||"";$("pAcc").textContent=on?"Аккаунт":"Войти / Зарегистрироваться"}
-var devPass=null,devMode=1,upBusy=false;
+var devPass=null,devMode=1,upBusy=false,devActive=false,devTarget=null,devInfo=null,myFrame=null;
 function gErr(e){var m=String(e&&e.message||e);if(/funds/.test(m))return"Недостаточно средств";if(/auth/.test(m))return"Войди в аккаунт, чтобы играть";if(/bad bet/.test(m))return"Некорректная ставка";if(/Failed to fetch/i.test(m))return"Нет связи с сервером";if(/function|schema/i.test(m))return"На сервере нет игровых функций. Выполни supabase_secure.sql";return"Ошибка: "+m}
-function profView(v){["Menu","Name","Theme","Acc","Dev","DevMenu","DevForm"].forEach(function(k){$("pv"+k).hidden=v!==k.toLowerCase()});$("profT").textContent={menu:"Профиль",name:"Изменить имя",theme:"Изменить тему",acc:"Аккаунт",dev:"Режим разработчика",devmenu:"Режим разработчика",devform:"Режим разработчика"}[v];if(v.indexOf("dev")!==0)devPass=null;accRefresh()}
+function profView(v){["Menu","Name","Theme","Acc","Dev","DevId","DevMenu","DevForm","DevFrame","DevDel"].forEach(function(k){$("pv"+k).hidden=v!==k.toLowerCase()});$("profT").textContent={menu:"Профиль",name:"Изменить имя",theme:"Изменить тему",acc:"Аккаунт",dev:"Режим разработчика",devid:"Режим разработчика",devmenu:"Режим разработчика",devform:"Режим разработчика",devframe:"Выдать рамку",devdel:"Удалить аккаунт"}[v];if(v.indexOf("dev")!==0)devPass=null;accRefresh()}
 $("pAcc").onclick=function(){profView("acc")};
 function openProf(){profView("menu");$("profOv").classList.add("open")}
 $("avatarBtn").onclick=openProf;
@@ -368,11 +405,11 @@ async function pPut(retry){var r=await fetch(SB+"/rest/v1/profiles?uid=eq."+sess
   if(r.status===401&&!retry){var j=await sbAuth("token?grant_type=refresh_token",{refresh_token:sess.ref});setSess(j,sess.id);return pPut(true)}return r}
 var lastBal=null;
 function syncRemote(){if(!sess)return;clearTimeout(sT);sT=setTimeout(function(){sT=null;pPut().catch(function(){})},600)}
-function applyP(p){if(!p)return;if(p.name)$("uname").textContent=p.name==="DIMASIK_PRO001"?"Слуга Бесса":String(p.name).slice(0,20);if(THEMES.some(function(t){return t.k===p.theme})){curTheme=p.theme;document.documentElement.setAttribute("data-skin",curTheme)}balance=+p.balance||0;setBal();try{localStorage.setItem("depka_profile",JSON.stringify({name:$("uname").textContent,theme:curTheme}))}catch(e){}}
+function applyP(p){if(!p)return;if(p.name)$("uname").textContent=p.name==="DIMASIK_PRO001"?"Слуга Бесса":String(p.name).slice(0,20);if(THEMES.some(function(t){return t.k===p.theme})){curTheme=p.theme;document.documentElement.setAttribute("data-skin",curTheme)}balance=+p.balance||0;setBal();myFrame=p.frame||null;updateFrame();try{localStorage.setItem("depka_profile",JSON.stringify({name:$("uname").textContent,theme:curTheme}))}catch(e){}}
 function saveProf(){try{localStorage.setItem("depka_profile",JSON.stringify({name:$("uname").textContent,theme:curTheme}))}catch(e){}syncRemote()}
 (function(){try{var p=JSON.parse(localStorage.getItem("depka_profile")||"null");if(p){if(typeof p.name==="string"&&p.name.trim())$("uname").textContent=p.name.slice(0,20);if(THEMES.some(function(t){return t.k===p.theme})){curTheme=p.theme;document.documentElement.setAttribute("data-skin",curTheme)}}}catch(e){}})();
 var balance=0;
-function setBal(){balance=Math.round(balance*100)/100;$("balV").textContent=fmt(balance)}
+function setBal(){balance=Math.round(balance*100)/100;$("balV").innerHTML=numTxt(balance)+' <span class="cur">'+dimWord(balance)+'</span>'}
 var LUD=[{t:"Проиграл",m:0,w:50,c:"l"},{t:"x1,5",m:1.5,w:30,c:"a"},{t:"x2",m:2,w:15,c:"b"},{t:"x3",m:3,w:5,c:"c"}];
 var ludBusy=false,IW=120;
 function ludPick(){var r=Math.random()*100,s=0;for(var i=0;i<LUD.length;i++){s+=LUD[i].w;if(r<s)return LUD[i]}return LUD[0]}
@@ -549,6 +586,12 @@ async function rpc(name,body,retry){
   if(!r.ok)throw new Error((d&&d.message)||"Ошибка");
   return d;
 }
+var FRAMES=[{k:"crown",t:"👑 Корона"},{k:"fire",t:"🔥 Огонь"},{k:"star",t:"⭐ Звезда"},{k:"gold",t:"🟡 Золотая рамка"},{k:"none",t:"Убрать рамку"}];
+var FR_ICON={crown:"👑",fire:"🔥",star:"⭐"};
+function frameName(k){var f=FRAMES.filter(function(x){return x.k===k})[0];return f?f.t.replace(/^\S+\s/,""):""}
+function updateFrame(){var k=devActive?"crown":myFrame;$("avatarBtn").classList.toggle("frame-gold",k==="gold");var b=$("frameBadge");b.hidden=!FR_ICON[k];b.textContent=FR_ICON[k]||""}
+function devWho(){var i=devInfo;$("devWho").textContent=i.name+" · ID "+i.id+" · "+fmt(+i.balance)+(i.frame?" · рамка: "+frameName(i.frame):"")}
+function dErr(e){var m=String(e&&e.message||e);if(/not found/i.test(m))return"Аккаунт с таким ID не найден";if(/bad password/i.test(m))return"Неверный пароль";if(/self/i.test(m))return"Нельзя удалить свой аккаунт";if(/Failed to fetch/i.test(m))return"Нет связи с сервером";if(/function|schema/i.test(m))return"На сервере нет новых функций. Выполни supabase_frames.sql";return"Ошибка: "+m}
 $("pDev").onclick=function(){$("devPw").value="";$("devErr").textContent="";profView("dev")};
 $("devEnter").onclick=async function(){
   var b=this,pw=$("devPw").value;$("devErr").textContent="";
@@ -557,32 +600,78 @@ $("devEnter").onclick=async function(){
   b.disabled=true;
   try{
     var ok=await rpc("admin_check",{pw:pw});
-    if(ok===true){devPass=pw;$("devPw").value="";profView("devmenu")}else $("devErr").textContent="Неверный пароль";
-  }catch(e){$("devErr").textContent=/Failed to fetch/i.test(e.message)?"Нет связи с сервером":"Ошибка: "+e.message}
+    if(ok===true){devPass=pw;devActive=true;updateFrame();$("devPw").value="";$("devId").value="";$("devIdErr").textContent="";$("devIdErr").style.color="";profView("devid");$("devId").focus()}
+    else $("devErr").textContent="Неверный пароль";
+  }catch(e){$("devErr").textContent=dErr(e)}
   b.disabled=false;
 };
-function devOpen(m){devMode=m;$("devId").value="";$("devAmt").value="";$("devMsg").textContent="";$("devMsg").style.color="";profView("devform");$("profT").textContent=m>0?"Накрутить":"Скрутить"}
+$("devIdGo").onclick=async function(){
+  var b=this,id=$("devId").value.trim(),e=$("devIdErr");e.style.color="";
+  if(!/^\d{6}$/.test(id)){e.textContent="ID — это 6 цифр";return}
+  b.disabled=true;e.textContent="";
+  try{devInfo=await rpc("admin_lookup",{pw:devPass,target:id});devTarget=id;devWho();profView("devmenu")}catch(x){e.textContent=dErr(x)}
+  b.disabled=false;
+};
+$("devMenuBack").onclick=function(){$("devId").value="";$("devIdErr").textContent="";$("devIdErr").style.color="";profView("devid")};
+function devOpen(m){devMode=m;$("devAmt").value="";$("devMsg").textContent="";$("devMsg").style.color="";profView("devform");$("profT").textContent=m>0?"Накрутить":"Скрутить"}
 $("devUp").onclick=function(){devOpen(1)};
 $("devDown").onclick=function(){devOpen(-1)};
-$("devBack").onclick=function(){profView("devmenu")};
+$("devBack").onclick=function(){devWho();profView("devmenu")};
 $("devDo").onclick=async function(){
-  var b=this,id=$("devId").value.trim(),amt=parseFloat($("devAmt").value),m=$("devMsg");
-  m.style.color="";
-  if(!/^\d{6}$/.test(id)){m.textContent="ID — это 6 цифр";return}
+  var b=this,amt=parseFloat($("devAmt").value),m=$("devMsg");m.style.color="";
   if(!(amt>0&&amt<=1e9)){m.textContent="Введи сумму больше нуля";return}
   b.disabled=true;m.textContent="";
   try{
-    var nb=await rpc("admin_adjust",{pw:devPass,target:id,delta:devMode*amt});
-    if(id===acct.id){balance=+nb;setBal()}
-    m.style.color="var(--green)";m.textContent="Готово. Баланс аккаунта "+id+": "+fmt(+nb);
-    $("devAmt").value="";
-  }catch(e){m.textContent=/not found/i.test(e.message)?"Аккаунт с таким ID не найден":/bad password/i.test(e.message)?"Пароль не подошёл":/Failed to fetch/i.test(e.message)?"Нет связи с сервером":"Ошибка: "+e.message}
+    var nb=await rpc("admin_adjust",{pw:devPass,target:devTarget,delta:devMode*amt});
+    devInfo.balance=+nb;if(devTarget===acct.id){balance=+nb;setBal()}
+    m.style.color="var(--green)";m.textContent="Готово. Баланс: "+fmt(+nb);$("devAmt").value="";
+  }catch(e){m.textContent=dErr(e)}
+  b.disabled=false;
+};
+$("devFrame").onclick=function(){
+  var l=$("frameList");l.innerHTML="";$("frMsg").textContent="";$("frMsg").style.color="";
+  FRAMES.forEach(function(f){
+    var b=document.createElement("button");b.className="pitem";b.textContent=f.t;
+    b.onclick=async function(){
+      var m=$("frMsg");m.style.color="";m.textContent="";
+      try{
+        await rpc("admin_set_frame",{pw:devPass,target:devTarget,f:f.k});
+        devInfo.frame=f.k==="none"?null:f.k;
+        if(devTarget===acct.id){myFrame=devInfo.frame;updateFrame()}
+        m.style.color="var(--green)";m.textContent=f.k==="none"?"Рамка убрана":"Рамка выдана: "+frameName(f.k);
+      }catch(e){m.textContent=dErr(e)}
+    };
+    l.appendChild(b);
+  });
+  profView("devframe");
+};
+$("frBack").onclick=function(){devWho();profView("devmenu")};
+$("devDelete").onclick=function(){
+  $("delTxt").textContent="Аккаунт "+devTarget+" ("+devInfo.name+") будет удалён навсегда вместе с балансом. Введи пароль разработчика ещё раз и нажми «Удалить».";
+  $("delPw").value="";$("delMsg").textContent="";profView("devdel");
+};
+$("delBack").onclick=function(){profView("devmenu")};
+$("delGo").onclick=async function(){
+  var b=this,pw=$("delPw").value,m=$("delMsg");
+  if(!pw){m.textContent="Введи пароль";return}
+  b.disabled=true;m.textContent="";
+  try{
+    await rpc("admin_delete",{pw:pw,target:devTarget});
+    var id=devTarget;devTarget=null;$("devId").value="";
+    var e=$("devIdErr");e.style.color="var(--green)";e.textContent="Аккаунт "+id+" удалён";profView("devid");
+  }catch(x){m.textContent=dErr(x)}
   b.disabled=false;
 };
 function gameBusy(){return ludBusy||slBusy||stRun||upBusy}
 async function pollBal(){
   if(!sess||document.hidden||gameBusy())return;
-  try{var p=await pGet();if(p&&!gameBusy()&&(+p.balance||0)!==balance){balance=+p.balance||0;setBal()}}catch(e){}
+  try{
+    var p=await pGet();
+    if(p&&!gameBusy()){
+      if((+p.balance||0)!==balance){balance=+p.balance||0;setBal()}
+      if((p.frame||null)!==myFrame){myFrame=p.frame||null;updateFrame()}
+    }
+  }catch(e){}
 }
 setInterval(pollBal,8000);
 document.addEventListener("visibilitychange",pollBal);
