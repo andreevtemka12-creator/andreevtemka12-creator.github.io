@@ -148,6 +148,44 @@ svg [fill="#12a64a"]{fill:var(--green2)}
 .lud-item.n{color:var(--mute);font-size:20px}
 #boxStrip .lud-item{font-size:21px}#boxStrip .lud-item.l,#boxStrip .lud-item.n{font-size:20px}
 .mid .boost-note{display:block;color:var(--gold);font-size:12px;min-height:16px;margin-top:2px}
+
+/* ===== Топ-100, рамка «Жевачный спонсор», согласие ===== */
+.av-wrap.chew{margin-top:22px}
+.frame-badge.chew{top:-26px;transform:translateX(-50%);line-height:0}
+.frame-badge.chew svg{display:block;width:48px;height:auto}
+.pitem.has-svg{display:flex;align-items:center;gap:14px}
+.pitem.has-svg svg{flex:none;width:104px;height:auto}
+.toplist{display:grid;gap:8px}
+.trow{display:grid;grid-template-columns:40px 1fr auto;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)}
+.trow.r1{border-color:var(--gold);box-shadow:0 0 12px rgba(255,210,74,.28)}
+.trow.r2{border-color:#c0c8d0}
+.trow.r3{border-color:#cd7f32}
+.trow.me{outline:2px solid var(--green);outline-offset:1px}
+.tpl{text-align:center;font-weight:900;font-size:16px;color:var(--mute)}
+.trow.r1 .tpl,.trow.r2 .tpl,.trow.r3 .tpl{font-size:24px;line-height:1}
+.tnm{display:flex;align-items:center;gap:8px;min-width:0;font-weight:800;font-size:16px}
+.tn{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tyou{flex:none;color:var(--mute);font-size:12px;font-weight:700}
+.tb{flex:none;line-height:1;font-size:18px}
+.tb.chew{line-height:0}
+.tb.chew svg{display:block;width:44px;height:auto}
+.tbl{text-align:right;font-weight:900;color:var(--gold);line-height:1.15;white-space:nowrap}
+.tbl small{display:block}
+.topme{margin-top:14px;padding:14px;border:1px solid var(--green);border-radius:14px;background:var(--panel2);text-align:center}
+.topme:empty{display:none}
+.topme h3{margin:0 0 6px;font-size:14px;color:var(--mute);font-weight:700}
+.tm-r{font-family:Impact,"Arial Black",sans-serif;font-size:40px;line-height:1.1;color:var(--green)}
+.tm-b{margin-top:4px;color:var(--gold);font-weight:800}
+.tm-n{margin-top:4px;color:var(--mute);font-size:13px;line-height:1.4}
+.consent{margin:4px 0 14px}
+.ck{display:flex;align-items:flex-start;gap:10px;margin:0 0 10px;cursor:pointer;font-size:14px;line-height:1.45;color:var(--text)}
+.ck input{flex:none;width:20px;height:20px;margin:1px 0 0;accent-color:var(--green);cursor:pointer}
+.terms{margin:2px 0 8px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);padding:8px 12px}
+.terms summary{cursor:pointer;color:var(--mute);font-size:13px;font-weight:700}
+.terms-b{margin-top:8px;color:var(--mute);font-size:12.5px;line-height:1.55}
+.terms-b p{margin:0 0 6px}
+.cn-hint{min-height:18px;color:var(--mute);font-size:12.5px;text-align:center}
+#accReg:disabled{cursor:not-allowed}
 </style>
 </head>
 <body>
@@ -157,7 +195,7 @@ svg [fill="#12a64a"]{fill:var(--green2)}
   <div class="user">
     
     <span class="uname"><span style="color:var(--mute)">Имя: </span><span id="uname">Слуга Бесса</span></span>
-    <span class="av-wrap"><svg class="avatar" id="avatarBtn" role="button" tabindex="0" viewBox="0 0 52 52" aria-label="Профиль"><circle cx="26" cy="20" r="9" fill="#2bff7a"/><path d="M8 46c2-11 10-15 18-15s16 4 18 15" fill="#2bff7a"/></svg><span class="frame-badge" id="frameBadge" hidden></span></span>
+    <span class="av-wrap" id="avWrap"><svg class="avatar" id="avatarBtn" role="button" tabindex="0" viewBox="0 0 52 52" aria-label="Профиль"><circle cx="26" cy="20" r="9" fill="#2bff7a"/><path d="M8 46c2-11 10-15 18-15s16 4 18 15" fill="#2bff7a"/></svg><span class="frame-badge" id="frameBadge" hidden></span></span>
   </div>
 </header>
 <div class="ck-row"><button class="ck-btn" id="openCk">Чекап<span class="ck-bang" id="ckBang" hidden>!</span></button></div>
@@ -213,6 +251,7 @@ svg [fill="#12a64a"]{fill:var(--green2)}
       <button class="pitem" id="pName">Изменить имя</button>
       <button class="pitem" id="pTheme">Изменить тему</button>
       <button class="pitem" id="pShop">Магазин</button>
+      <button class="pitem" id="pTop">Топ-100 по балансу</button>
       <button class="pitem" id="pDev">Перейти в режим разработчика</button>
       <button class="pitem" id="pAcc">Аккаунт</button>
       <div id="idLine" class="idl" hidden>ID: <b id="idV"></b></div>
@@ -229,7 +268,19 @@ svg [fill="#12a64a"]{fill:var(--green2)}
         <div id="boxReg">
           <p style="color:var(--mute);margin:0 0 12px">Тебе выдадут ID из 4 цифр и 100 Бурмалдакойнов на старт. Придумай пароль (минимум 6 символов), с ним можно войти с любого устройства.</p>
           <div class="field"><label for="regPw">Пароль</label><input id="regPw" type="password" autocomplete="new-password"></div>
-          <button class="go" id="accReg" style="margin-top:0">Создать аккаунт</button>
+          <div class="consent">
+            <label class="ck"><input type="checkbox" id="cn18"><span>Мне исполнилось 18 лет, и я подтверждаю, что участвую добровольно</span></label>
+            <label class="ck"><input type="checkbox" id="cnTerms"><span>Я понимаю, что Burmaldadima — развлекательный проект, а не казино. «Бурмалдакойны» — виртуальная валюта без денежной стоимости</span></label>
+            <details class="terms"><summary>Пользовательское соглашение</summary><div class="terms-b">
+              <p><b>1. Возраст и добровольность.</b> Мне исполнилось 18 лет, я участвую в проекте добровольно.</p>
+              <p><b>2. Только развлечение.</b> Burmaldadima — исключительно развлекательный проект. Сайт не является казино, букмекерской конторой или игорным заведением и не проводит азартных игр на реальные деньги.</p>
+              <p><b>3. Виртуальная валюта.</b> «Бурмалдакойны» — виртуальная внутриигровая валюта без денежной стоимости: их нельзя купить за реальные деньги, обменять на деньги или товары и вывести. Реальных ставок и выигрышей на сайте нет.</p>
+              <p><b>4. Независимость.</b> Сайт не связан с казино и не пропагандирует азартные игры.</p>
+              <p>Моё согласие сохраняется на сервере вместе с датой и версией соглашения (<span id="cnVer"></span>).</p>
+            </div></details>
+            <div class="cn-hint" id="cnHint"></div>
+          </div>
+          <button class="go" id="accReg" style="margin-top:0" disabled>Создать аккаунт</button>
         </div>
         <div id="boxLog" hidden>
           <div class="field"><label for="logId">ID</label><input id="logId" type="text" inputmode="numeric" maxlength="6" autocomplete="username"></div>
@@ -309,6 +360,12 @@ svg [fill="#12a64a"]{fill:var(--green2)}
       <div class="shop-bal"></div>
       <div id="shBoxList"></div>
       <button class="back" data-shopback>Назад</button>
+    </div>
+    <div id="pvTop" hidden>
+      <div class="toplist" id="topList"></div>
+      <div class="topme" id="topMe"></div>
+      <div class="err" id="topErr"></div>
+      <button class="back" data-back>Назад</button>
     </div>
     <div id="pvTheme" hidden>
       <div class="themes" id="themes"></div>
@@ -472,7 +529,7 @@ $("themes").addEventListener("click",function(e){var b=e.target.closest(".th");i
 function accRefresh(){var on=!!acct.id;$("idLine").hidden=!on;$("idV").textContent=acct.id||"";$("accOff").hidden=on;$("accOn").hidden=!on;$("accId").textContent=acct.id||"";$("pAcc").textContent=on?"Аккаунт":"Войти / Зарегистрироваться"}
 var devPass=null,devMode=1,upBusy=false,devActive=false,devTarget=null,devInfo=null,myFrame=null;
 function gErr(e){var m=String(e&&e.message||e);if(/funds/.test(m))return"Недостаточно средств";if(/auth/.test(m))return"Войди в аккаунт, чтобы играть";if(/bad bet/.test(m))return"Некорректная ставка";if(/Failed to fetch/i.test(m))return"Нет связи с сервером";if(/function|schema/i.test(m))return"На сервере нет игровых функций. Выполни supabase_secure.sql";return"Ошибка: "+m}
-function profView(v){["Menu","Name","Theme","Acc","Dev","DevId","DevMenu","DevForm","DevFrame","DevDel","Shop","ShopFr","ShopUp","ShopBox"].forEach(function(k){$("pv"+k).hidden=v!==k.toLowerCase()});$("profT").textContent={menu:"Профиль",name:"Изменить имя",theme:"Изменить тему",acc:"Аккаунт",dev:"Режим разработчика",devid:"Режим разработчика",devmenu:"Режим разработчика",devform:"Режим разработчика",devframe:"Выдать рамку",devdel:"Удалить аккаунт",shop:"Магазин",shopfr:"Рамки",shopup:"Повышение шансов",shopbox:"Лаки боксы"}[v];if(v.indexOf("dev")!==0)devPass=null;accRefresh()}
+function profView(v){["Menu","Name","Theme","Acc","Dev","DevId","DevMenu","DevForm","DevFrame","DevDel","Shop","ShopFr","ShopUp","ShopBox","Top"].forEach(function(k){$("pv"+k).hidden=v!==k.toLowerCase()});$("profT").textContent={menu:"Профиль",name:"Изменить имя",theme:"Изменить тему",acc:"Аккаунт",dev:"Режим разработчика",devid:"Режим разработчика",devmenu:"Режим разработчика",devform:"Режим разработчика",devframe:"Выдать рамку",devdel:"Удалить аккаунт",shop:"Магазин",shopfr:"Рамки",shopup:"Повышение шансов",shopbox:"Лаки боксы",top:"Топ-100 по балансу"}[v];if(v.indexOf("dev")!==0)devPass=null;if(v!=="top")topSeq++;accRefresh()}
 $("pAcc").onclick=function(){profView("acc")};
 function openProf(){profView("menu");$("profOv").classList.add("open")}
 $("avatarBtn").onclick=openProf;
@@ -591,24 +648,25 @@ document.addEventListener("keydown",function(e){if(e.key==="Escape"){$("resOv").
 
 function accTab(reg){$("boxReg").hidden=!reg;$("boxLog").hidden=reg;$("tabReg").classList.toggle("on",reg);$("tabLog").classList.toggle("on",!reg);$("accErr").textContent=""}
 $("tabReg").onclick=function(){accTab(true)};$("tabLog").onclick=function(){accTab(false)};
-function nice(m){m=String(m);if(/Invalid login/i.test(m))return"Неверный ID или пароль";if(/rate|too many/i.test(m))return"Слишком много попыток, подожди немного";if(/password/i.test(m))return"Пароль слишком простой или короткий";if(/Failed to fetch|network/i.test(m))return"Нет связи с сервером";return m}
+function nice(m){m=String(m);if(/Database error/i.test(m))return"Не удалось создать аккаунт. Отметь обе галочки и попробуй ещё раз. Если не помогает — выполни supabase_top_chew_consent.sql в Supabase";if(/Invalid login/i.test(m))return"Неверный ID или пароль";if(/rate|too many/i.test(m))return"Слишком много попыток, подожди немного";if(/password/i.test(m))return"Пароль слишком простой или короткий";if(/Failed to fetch|network/i.test(m))return"Нет связи с сервером";return m}
 $("accReg").onclick=async function(){
   var b=this,pw=$("regPw").value;
+  if(!($("cn18").checked&&$("cnTerms").checked)){regSync();return}
   if(pw.length<6){$("accErr").textContent="Пароль минимум 6 символов";return}
   $("accErr").textContent="";b.disabled=true;
   try{
     for(var i=0;i<30;i++){
       var id=String(1000+Math.floor(Math.random()*9000)),j;
-      try{j=await sbAuth("signup",{email:mail(id),password:pw})}
+      try{j=await sbAuth("signup",{email:mail(id),password:pw,data:{age_confirmed:true,terms_accepted:true,consent_version:CONSENT_VER}})}
       catch(e){if(/already|registered/i.test(e.message)&&i<29)continue;throw e}
       if(!j.access_token)throw new Error("В Supabase отключи подтверждение почты (Auth → Providers → Email)");
       setSess(j,id);
       var p0=await pGet();if(!p0)throw new Error("Аккаунт создан, но профиль не появился. Выполни supabase_secure.sql в Supabase");applyP(p0);
       break;
     }
-    $("regPw").value="";accRefresh();tgShow();
+    $("regPw").value="";$("cn18").checked=false;$("cnTerms").checked=false;accRefresh();tgShow();
   }catch(e){$("accErr").textContent=nice(e.message)}
-  b.disabled=false;
+  regSync();
 };
 $("accLogin").onclick=async function(){
   var b=this,id=$("logId").value.trim(),pw=$("logPw").value;
@@ -677,10 +735,90 @@ async function rpc(name,body,retry){
   if(!r.ok)throw new Error((d&&d.message)||"Ошибка");
   return d;
 }
-var FRAMES=[{k:"crown",t:"👑 Корона"},{k:"fire",t:"🔥 Огонь"},{k:"star",t:"⭐ Звезда"},{k:"gold",t:"🟡 Золотая рамка"},{k:"none",t:"Убрать рамку"}];
+/* ===== Согласие, рамка «Жевачный спонсор», топ-100 ===== */
+var CONSENT_VER="v1"; // при смене текста соглашения поменяй версию (v2, v3…)
+$("cnVer").textContent=CONSENT_VER;
+function regSync(){var ok=$("cn18").checked&&$("cnTerms").checked;$("accReg").disabled=!ok;$("cnHint").textContent=ok?"":"Отметь обе галочки, чтобы создать аккаунт"}
+$("cn18").onchange=regSync;$("cnTerms").onchange=regSync;regSync();
+function chewPack(cx,ang,top,body,edge,ink,name){
+  return '<g transform="translate('+cx+' 56) rotate('+ang+')">'+
+    '<rect x="-9" y="'+top+'" width="18" height="'+(4-top)+'" rx="3.5" fill="'+body+'" stroke="'+edge+'" stroke-width="1.5"/>'+
+    '<rect x="-9" y="'+top+'" width="18" height="6" rx="3" fill="'+edge+'"/>'+
+    '<rect x="-9" y="-2" width="18" height="6" rx="3" fill="'+edge+'"/>'+
+    '<rect x="-6" y="'+(top+9)+'" width="2" height="'+(-top-18)+'" rx="1" fill="#fff" opacity=".4"/>'+
+    '<text transform="translate(3 '+((top+4)/2)+') rotate(-90)" text-anchor="middle" font-family="Trebuchet MS,Segoe UI,Arial,sans-serif" font-size="7" font-weight="900" fill="'+ink+'">'+name+'</text></g>';
+}
+// Веер из трёх жвачек. Без градиентов и id: SVG вставляется в несколько мест страницы сразу
+function chewSvg(){
+  return '<svg viewBox="0 0 100 66" role="img" aria-label="Жевачный спонсор" xmlns="http://www.w3.org/2000/svg">'+
+    chewPack(35,-24,-48,"#2f6fd0","#d3dbe5","#ffffff","Eclipse")+
+    chewPack(65,24,-48,"#f3fff7","#35b974","#168a4c","Dirol")+
+    chewPack(50,0,-52,"#f6fbff","#5ab0ee","#1b73c4","Orbit")+'</svg>';
+}
+var topSeq=0,TOP_MEDAL=["🥇","🥈","🥉"];
+async function rpcPub(name,body){
+  var r=await fetch(SB+"/rest/v1/rpc/"+name,{method:"POST",headers:sbH(null),body:JSON.stringify(body)});
+  var d=await r.json().catch(function(){return null});
+  if(!r.ok)throw new Error((d&&d.message)||"Ошибка");
+  return d;
+}
+function tErr(e){var m=String(e&&e.message||e);if(/function|schema|leaderboard/i.test(m))return"На сервере нет топа. Выполни supabase_top_chew_consent.sql";return gErr(e)}
+function topBadge(k){
+  if(k==="chew"){var c=document.createElement("span");c.className="tb chew";c.title=frameName(k);c.innerHTML=chewSvg();return c}
+  var ic=FR_ICON[k]||(k==="gold"?"🟡":"");if(!ic)return null;
+  var s=document.createElement("span");s.className="tb";s.title=frameName(k);s.textContent=ic;return s;
+}
+function topRow(o){
+  var rk=+o.rank,bv=+o.balance||0,nm=String(o.name||"");
+  var d=document.createElement("div");d.className="trow"+(rk<=3?" r"+rk:"")+(o.me?" me":"");
+  var p=document.createElement("span");p.className="tpl";p.textContent=rk>=1&&rk<=3?TOP_MEDAL[rk-1]:String(rk);
+  var n=document.createElement("span");n.className="tnm";
+  var t=document.createElement("span");t.className="tn";t.textContent=nm==="DIMASIK_PRO001"?"Слуга Бесса":nm.slice(0,20);n.appendChild(t);
+  var fb=topBadge(o.frame);if(fb)n.appendChild(fb);
+  if(o.me){var y=document.createElement("span");y.className="tyou";y.textContent="ты";n.appendChild(y)}
+  var b=document.createElement("span");b.className="tbl";b.appendChild(document.createTextNode(numTxt(bv)));
+  var u=document.createElement("small");u.className="cur";u.textContent=dimWord(bv);b.appendChild(u);
+  d.appendChild(p);d.appendChild(n);d.appendChild(b);
+  return d;
+}
+function topMeRender(res){
+  var me=$("topMe");me.innerHTML="";
+  function line(c,t,tag){var d=document.createElement(tag||"div");d.className=c;d.textContent=t;me.appendChild(d)}
+  var h=document.createElement("h3");h.textContent="Твоё место в мировом топе";me.appendChild(h);
+  if(!sess){line("tm-n","Войди в аккаунт, чтобы увидеть своё место в топе");return}
+  if(res.me_rank==null){line("tm-n","Твой профиль не найден");return}
+  var r=+res.me_rank,b=+res.me_balance||0,tot=+res.total||0;
+  line("tm-r","#"+r);
+  line("tm-b",numTxt(b)+" "+dimWord(b));
+  line("tm-n",r<=100?"Ты входишь в топ-100":"Ты пока не входишь в топ-100");
+  if(tot>0)line("tm-n","Всего игроков: "+numTxt(tot));
+}
+async function topLoad(){
+  var seq=++topSeq,l=$("topList"),er=$("topErr");
+  er.textContent="";$("topMe").innerHTML="";l.innerHTML="";
+  var ld=document.createElement("div");ld.className="shop-note";ld.textContent="Загрузка…";l.appendChild(ld);
+  var res;
+  try{res=await(sess?rpc:rpcPub)("leaderboard_me",{p_limit:100})}
+  catch(e){if(seq!==topSeq)return;l.innerHTML="";er.textContent=tErr(e);return}
+  if(seq!==topSeq)return;
+  l.innerHTML="";
+  var top=res&&res.top||[];
+  if(!top.length){var em=document.createElement("div");em.className="shop-note";em.textContent="Пока здесь никого нет";l.appendChild(em)}
+  top.forEach(function(o){l.appendChild(topRow(o))});
+  topMeRender(res||{});
+}
+$("pTop").onclick=function(){profView("top");topLoad()};
+var FRAMES=[{k:"crown",t:"👑 Корона"},{k:"fire",t:"🔥 Огонь"},{k:"star",t:"⭐ Звезда"},{k:"gold",t:"🟡 Золотая рамка"},{k:"chew",t:"🍬 Жевачный спонсор"},{k:"none",t:"Убрать рамку"}];
 var FR_ICON={crown:"👑",fire:"🔥",star:"⭐"};
 function frameName(k){var f=FRAMES.filter(function(x){return x.k===k})[0];return f?f.t.replace(/^\S+\s/,""):""}
-function updateFrame(){var k=devActive?"crown":myFrame;$("avatarBtn").classList.toggle("frame-gold",k==="gold");var b=$("frameBadge");b.hidden=!FR_ICON[k];b.textContent=FR_ICON[k]||""}
+function updateFrame(){
+  var k=devActive?"crown":myFrame,ch=k==="chew",b=$("frameBadge");
+  $("avatarBtn").classList.toggle("frame-gold",k==="gold");
+  $("avWrap").classList.toggle("chew",ch);
+  b.classList.toggle("chew",ch);
+  b.hidden=!(ch||FR_ICON[k]);
+  if(ch)b.innerHTML=chewSvg();else b.textContent=FR_ICON[k]||"";
+}
 function devWho(){var i=devInfo;$("devWho").textContent=i.name+" · ID "+i.id+" · "+fmt(+i.balance)+(i.frame?" · рамка: "+frameName(i.frame):"")}
 function dErr(e){var m=String(e&&e.message||e);if(/not dev/i.test(m))return"Корону можно выдать только тому, кто входил в режим разработчика";if(/not found/i.test(m))return"Аккаунт с таким ID не найден";if(/bad password/i.test(m))return"Неверный пароль";if(/self/i.test(m))return"Нельзя удалить свой аккаунт";if(/Failed to fetch/i.test(m))return"Нет связи с сервером";if(/function|schema/i.test(m))return"На сервере нет новых функций. Выполни supabase_frames.sql";return"Ошибка: "+m}
 $("pDev").onclick=function(){$("devPw").value="";$("devErr").textContent="";profView("dev")};
@@ -722,7 +860,7 @@ $("devDo").onclick=async function(){
 $("devFrame").onclick=function(){
   var l=$("frameList");l.innerHTML="";$("frMsg").textContent="";$("frMsg").style.color="";
   FRAMES.forEach(function(f){
-    var b=document.createElement("button");b.className="pitem";b.textContent=f.t;
+    var b=document.createElement("button");b.className="pitem";if(f.k==="chew"){b.classList.add("has-svg");b.innerHTML=chewSvg()+"<span>"+frameName("chew")+"</span>"}else b.textContent=f.t;
     b.onclick=async function(){
       var m=$("frMsg");m.style.color="";m.textContent="";
       try{
