@@ -214,6 +214,9 @@ svg [fill="#12a64a"]{fill:var(--green2)}
 .tav{display:flex;align-items:center;justify-content:center;width:44px}
 .trow.hb{padding-top:24px}
 #accReg:disabled{cursor:not-allowed}
+.tcol{display:flex;flex-direction:column;gap:2px;min-width:0}
+.tid{color:var(--mute);font-size:12px;font-weight:700}
+.sitem>div{flex:1;min-width:0}
 .bx-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .bx-grid .big{width:100%;padding:16px 10px 14px;gap:8px;font-size:18px}
 .bx-grid .big svg{width:96px;height:96px}
@@ -877,7 +880,9 @@ function topRow(o){
   if(o.me){var y=document.createElement("span");y.className="tyou";y.textContent="ты";n.appendChild(y)}
   var b=document.createElement("span");b.className="tbl";b.appendChild(document.createTextNode(numTxt(bv)));
   var u=document.createElement("small");u.className="cur";u.textContent=dimWord(bv);b.appendChild(u);
-  d.appendChild(p);d.appendChild(ac);d.appendChild(n);d.appendChild(b);
+  var col=document.createElement("span");col.className="tcol";col.appendChild(n);
+  if(o.id){var il=document.createElement("small");il.className="tid";il.textContent="ID "+o.id;col.appendChild(il)}
+  d.appendChild(p);d.appendChild(ac);d.appendChild(col);d.appendChild(b);
   return d;
 }
 function topMeRender(res){
@@ -910,7 +915,7 @@ $("pTop").onclick=function(){profView("top");topLoad()};
 var FRAMES=[{k:"crown",t:"👑 Корона"},{k:"fire",t:"🔥 Огонь"},{k:"star",t:"⭐ Звезда"},{k:"gold",t:"🟡 Золотая рамка"},{k:"chew",t:"🍬 Жевачный спонсор"},{k:"ice",t:"❄️ Лёд"},{k:"lightning",t:"⚡ Молния"},{k:"hearts",t:"💖 Сердца"},{k:"rainbow",t:"🌈 Радуга"},{k:"neon",t:"🟢 Неон"},{k:"none",t:"Убрать рамку"}];
 var FR_ICON={crown:"👑"};
 function frameName(k){var f=FRAMES.filter(function(x){return x.k===k})[0];return f?f.t.replace(/^\S+\s/,""):""}
-function updateFrame(){frameApply($("avWrap"),devActive?"crown":myFrame)}
+function updateFrame(){frameApply($("avWrap"),myFrame)}
 function devWho(){var i=devInfo;$("devWho").textContent=i.name+" · ID "+i.id+" · "+fmt(+i.balance)+(i.frame?" · рамка: "+frameName(i.frame):"")}
 function dErr(e){var m=String(e&&e.message||e);if(/not dev/i.test(m))return"Корону можно выдать только тому, кто входил в режим разработчика";if(/not found/i.test(m))return"Аккаунт с таким ID не найден";if(/bad password/i.test(m))return"Неверный пароль";if(/self/i.test(m))return"Нельзя удалить свой аккаунт";if(/Failed to fetch/i.test(m))return"Нет связи с сервером";if(/function|schema/i.test(m))return"На сервере нет новых функций. Выполни supabase_frames.sql";return"Ошибка: "+m}
 $("pDev").onclick=function(){$("devPw").value="";$("devErr").textContent="";profView("dev")};
@@ -1042,7 +1047,7 @@ try{if(sess&&localStorage.getItem("bd_tg_"+sess.id))$("tgOv").classList.add("ope
 
 /* ===== Магазин ===== */
 var BOOST=[{b:1},{b:3},{b:5},{b:7},{b:10}];
-var SHOP_FR=[{k:"fire",n:"Огонь",i:"🔥"},{k:"star",n:"Звезда",i:"⭐"},{k:"gold",n:"Золотая рамка",i:"🟡"}];
+var SHOP_FR=[{k:"fire",n:"Огонь",i:"🔥"},{k:"star",n:"Звезда",i:"⭐"},{k:"gold",n:"Золотая рамка",i:"🟡"},{k:"ice",n:"Лёд",i:"❄️"},{k:"lightning",n:"Молния",i:"⚡"},{k:"hearts",n:"Сердца",i:"💖"},{k:"rainbow",n:"Радуга",i:"🌈"},{k:"neon",n:"Неон",i:"🟢"}];
 var boostLvl=0,framesOwned=[],buffPct=0,buffUntil=0,boxBusy=false,shBusy=false,boxCur=null;
 function upBonus(){var b=boostLvl>0?BOOST[boostLvl-1].b:0;if(buffUntil>Date.now())b+=buffPct;return b}
 function upNote(){
@@ -1095,6 +1100,7 @@ function shRenderFr(){
   SHOP_FR.forEach(function(f){
     var eq=myFrame===f.k,own=eq||framesOwned.indexOf(f.k)>=0;
     var d=sitem(f.i+" "+f.n,eq?"Надета":own?"Куплена":fmt(200),eq?"on":"");
+    var pv=document.createElement("span");pv.className="tav";pv.appendChild(miniAvatar(f.k));d.insertBefore(pv,d.firstChild);
     var b=document.createElement("button");
     if(eq){
       b.textContent="Снять";b.className="alt";
