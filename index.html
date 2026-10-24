@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Burmaldima</title>
-<meta name="description" content="Burmaldadima — игры Апгрейдер, Лудка, Стант и Слоты">
+<meta name="description" content="Burmaldima — игры Апгрейдер, Лудка, Стант, Слоты и Монетка">
 <style>
 :root{color-scheme:dark;--bg:#050806;--panel:#0d1410;--line:#1f3a29;--green:#2bff7a;--green2:#12a64a;--text:#e8f5ec;--mute:#7f9a89;--red:#ff4d5e;--gold:#ffd24a;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -214,6 +214,13 @@ svg [fill="#12a64a"]{fill:var(--green2)}
 .tav{display:flex;align-items:center;justify-content:center;width:44px}
 .trow.hb{padding-top:24px}
 #accReg:disabled{cursor:not-allowed}
+.coin-wrap{perspective:700px;display:grid;place-items:center;height:150px;margin:4px 0 14px}
+.coin{width:110px;height:110px;position:relative;transform-style:preserve-3d;transition:transform 2.2s cubic-bezier(.2,.7,.2,1)}
+.coin i{position:absolute;inset:0;border-radius:50%;display:grid;place-items:center;backface-visibility:hidden;-webkit-backface-visibility:hidden;font-style:normal;font-family:Impact,"Arial Black",sans-serif;font-size:56px;color:#7a5200;background:radial-gradient(circle at 35% 30%,#ffe98a,#ffd24a 55%,#c99200);border:5px solid #b8860b;box-shadow:inset 0 0 0 4px rgba(255,255,255,.25)}
+.coin i.b{transform:rotateY(180deg)}
+.coin-btns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.coin-btns .go{margin-top:0}
+@media (prefers-reduced-motion:reduce){.coin{transition-duration:.01s}}
 .tcol{display:flex;flex-direction:column;gap:2px;min-width:0}
 .tid{color:var(--mute);font-size:12px;font-weight:700}
 .sitem>div{flex:1;min-width:0}
@@ -253,7 +260,7 @@ button.bal{border:3px solid var(--text);border-radius:12px;box-shadow:4px 4px 0 
 <body>
 <header>
   <button class="bal" id="balBtn" aria-label="Баланс"><small>Баланс</small><b id="balV">0 <span class="cur">Бурмалдакойнов</span></b></button>
-  <h1>Burmaldadima</h1>
+  <h1>Burmaldima</h1>
   <div class="user">
     
     <span class="uname"><span style="color:var(--mute)">Имя: </span><span id="uname">Legitный</span></span>
@@ -279,6 +286,10 @@ button.bal{border:3px solid var(--text);border-radius:12px;box-shadow:4px 4px 0 
     <button class="big" id="openSl">
       <svg viewBox="0 0 120 120" aria-hidden="true"><rect x="8" y="8" width="104" height="104" rx="22" fill="#0a1f13" stroke="#2bff7a" stroke-width="3"/><g fill="#102a1a" stroke="#2bff7a" stroke-width="3"><rect x="15" y="36" width="27" height="48" rx="6"/><rect x="46" y="36" width="27" height="48" rx="6"/><rect x="77" y="36" width="27" height="48" rx="6"/></g><g fill="#ffd24a" font-size="30" font-weight="900" font-family="Impact,Arial Black,sans-serif" text-anchor="middle"><text x="28.5" y="70">7</text><text x="59.5" y="70">7</text><text x="90.5" y="70">7</text></g></svg>
       Слоты
+    </button>
+    <button class="big" id="openCo">
+      <svg viewBox="0 0 120 120" aria-hidden="true"><rect x="8" y="8" width="104" height="104" rx="22" fill="#0a1f13" stroke="#2bff7a" stroke-width="3"/><circle cx="60" cy="60" r="33" fill="#ffd24a" stroke="#b8860b" stroke-width="4"/><circle cx="60" cy="60" r="24" fill="none" stroke="#b8860b" stroke-width="3"/><text x="60" y="73" text-anchor="middle" font-size="38" font-weight="900" font-family="Impact,Arial Black,sans-serif" fill="#7a5200">Б</text></svg>
+      Монетка
     </button>
   </div>
 </main>
@@ -333,10 +344,10 @@ button.bal{border:3px solid var(--text);border-radius:12px;box-shadow:4px 4px 0 
           <div class="field"><label for="regPw">Пароль</label><input id="regPw" type="password" autocomplete="new-password"></div>
           <div class="consent">
             <label class="ck"><input type="checkbox" id="cn18"><span>Мне исполнилось 18 лет, и я подтверждаю, что участвую добровольно</span></label>
-            <label class="ck"><input type="checkbox" id="cnTerms"><span>Я понимаю, что Burmaldadima — развлекательный проект, а не казино. «Бурмалдакойны» — виртуальная валюта без денежной стоимости</span></label>
+            <label class="ck"><input type="checkbox" id="cnTerms"><span>Я понимаю, что Burmaldima — развлекательный проект, а не казино. «Бурмалдакойны» — виртуальная валюта без денежной стоимости</span></label>
             <details class="terms"><summary>Пользовательское соглашение</summary><div class="terms-b">
               <p><b>1. Возраст и добровольность.</b> Мне исполнилось 18 лет, я участвую в проекте добровольно.</p>
-              <p><b>2. Только развлечение.</b> Burmaldadima — исключительно развлекательный проект. Сайт не является казино, букмекерской конторой или игорным заведением и не проводит азартных игр на реальные деньги.</p>
+              <p><b>2. Только развлечение.</b> Burmaldima — исключительно развлекательный проект. Сайт не является казино, букмекерской конторой или игорным заведением и не проводит азартных игр на реальные деньги.</p>
               <p><b>3. Виртуальная валюта.</b> «Бурмалдакойны» — виртуальная внутриигровая валюта без денежной стоимости: их нельзя купить за реальные деньги, обменять на деньги или товары и вывести. Реальных ставок и выигрышей на сайте нет.</p>
               <p><b>4. Независимость.</b> Сайт не связан с казино и не пропагандирует азартные игры.</p>
               <p>Моё согласие сохраняется на сервере вместе с датой и версией соглашения (<span id="cnVer"></span>).</p>
@@ -478,6 +489,18 @@ button.bal{border:3px solid var(--text);border-radius:12px;box-shadow:4px 4px 0 
     <div class="field"><label for="slBet">Ставлю, Бурмалдакойны</label><input id="slBet" type="number" min="1" inputmode="numeric" value="100"></div>
     <button class="go" id="slGo">Крутануть</button>
     <div class="err" id="slErr"></div>
+  </div>
+</div>
+
+<div class="overlay" id="coOv">
+  <div class="modal" role="dialog" aria-label="Монетка" style="width:min(460px,100%)">
+    <button class="x" id="closeCo" aria-label="Закрыть">×</button>
+    <h2>Монетка</h2>
+    <p class="sl-pay">Угадай сторону монетки — выплата x1,86</p>
+    <div class="coin-wrap"><div class="coin" id="coin"><i>О</i><i class="b">Р</i></div></div>
+    <div class="field"><label for="coBet">Ставлю, Бурмалдакойны</label><input id="coBet" type="number" min="1" inputmode="numeric" value="100"></div>
+    <div class="coin-btns"><button class="go" id="coHeads">Орёл</button><button class="go" id="coTails">Решка</button></div>
+    <div class="err" id="coErr"></div>
   </div>
 </div>
 
@@ -988,7 +1011,7 @@ $("delGo").onclick=async function(){
   }catch(x){m.textContent=dErr(x)}
   b.disabled=false;
 };
-function gameBusy(){return ludBusy||slBusy||stRun||upBusy||boxBusy||shBusy}
+function gameBusy(){return coBusy||ludBusy||slBusy||stRun||upBusy||boxBusy||shBusy}
 async function pollBal(){
   if(!sess||document.hidden||gameBusy())return;
   try{
@@ -1044,6 +1067,37 @@ $("tgGo").onclick=function(){
   $("tgOv").classList.remove("open");
 };
 try{if(sess&&localStorage.getItem("bd_tg_"+sess.id))$("tgOv").classList.add("open")}catch(e){}
+
+/* ===== Монетка ===== */
+var coAng=0,coBusy=false;
+function cErr(e){var m=String(e&&e.message||e);if(/function|schema/i.test(m))return"На сервере нет игры. Выполни supabase_coin.sql";return gErr(e)}
+function coBtns(d){$("coHeads").disabled=d;$("coTails").disabled=d}
+function closeCo(){if(!coBusy)$("coOv").classList.remove("open")}
+$("openCo").onclick=function(){$("coOv").classList.add("open");$("coErr").textContent=""};
+$("closeCo").onclick=closeCo;
+$("coOv").addEventListener("click",function(e){if(e.target===this)closeCo()});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closeCo()});
+async function coPlay(pick){
+  var bet=parseFloat($("coBet").value),e=$("coErr");
+  if(!(bet>0)){e.textContent="Введи ставку больше нуля";return}
+  if(!sess){e.textContent="Войди в аккаунт, чтобы играть";return}
+  if(bet>balance){e.textContent="Недостаточно средств";return}
+  e.textContent="";coBusy=true;coBtns(true);
+  var res;
+  try{res=await rpc("play_coin",{bet:bet,pick:pick})}catch(x){e.textContent=cErr(x);coBusy=false;coBtns(false);return}
+  balance-=bet;setBal();
+  coAng+=360*4+(((res.side==="tails"?180:0)-coAng%360)+360)%360;
+  $("coin").style.transform="rotateY("+coAng+"deg)";
+  setTimeout(function(){
+    coBusy=false;coBtns(false);balance=+res.balance;setBal();
+    var r=$("resOv"),nm=res.side==="tails"?"Решка":"Орёл";r.classList.remove("win","lose");
+    if(res.win){r.classList.add("win");$("resT").textContent="Повезло!";$("resP").textContent="Выпало: "+nm+". Ты получил "+fmt(+res.pay)}
+    else{r.classList.add("lose");$("resT").textContent="Не повезло";$("resP").textContent="Выпало: "+nm+". Ставка "+fmt(bet)+" сгорела"}
+    r.classList.add("open");
+  },2400);
+}
+$("coHeads").onclick=function(){coPlay("heads")};
+$("coTails").onclick=function(){coPlay("tails")};
 
 /* ===== Магазин ===== */
 var BOOST=[{b:1},{b:3},{b:5},{b:7},{b:10}];
