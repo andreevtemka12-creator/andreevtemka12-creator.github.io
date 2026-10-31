@@ -23,8 +23,7 @@ main{display:flex;justify-content:center;align-items:center;min-height:60vh;padd
 .big{width:230px;padding:22px 16px 20px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,#0f1c15,var(--panel));color:var(--text);font:inherit;font-size:22px;font-weight:800;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:14px;transition:transform .15s,border-color .15s,box-shadow .15s}
 .big:hover,.big:focus-visible{transform:translateY(-4px);border-color:var(--green);box-shadow:0 0 28px rgba(43,255,122,.25);outline:none}
 .big svg{width:120px;height:120px}
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
-.overlay.open{display:flex}
+/* overlay handled below */
 .modal{width:min(760px,100%);max-height:100%;overflow:auto;background:var(--panel);border:1px solid var(--green2);border-radius:20px;padding:24px;position:relative;box-shadow:0 0 50px rgba(43,255,122,.15)}
 .modal h2{margin:0 0 18px;text-align:center;font-size:26px;color:var(--green)}
 .x{position:absolute;top:12px;right:14px;background:none;border:0;color:var(--mute);font-size:28px;cursor:pointer}
@@ -323,8 +322,132 @@ h1{display:block;grid-column:auto;margin:0;padding:calc(18px + env(safe-area-ins
 .ck-day{min-width:0;padding:10px 6px}
 .ck-day.big7{grid-column:1/-1}
 .ck-day span{display:block;overflow-wrap:anywhere}
-.overlay .modal{transform-origin:50% 50%;transform:translate(var(--ox,0px),var(--oy,34px)) scale(var(--os,.92));transition:transform .42s cubic-bezier(.4,0,.6,1),opacity .26s ease .12s}
-.overlay.open .modal{transform:none;opacity:1;transition:transform .62s cubic-bezier(.2,.9,.25,1),opacity .22s ease}
+
+/* ===== Точная копия анимации открытия приложений iOS (как в Shorts) ===== */
+
+/* 1. Глубокий зум и блюр домашнего экрана (Wallpaper / Icons Pushback) */
+#pages, header, .orb, #graffiti, .hotbar {
+  transition: transform 0.62s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.55s ease;
+  will-change: transform, filter;
+  transform-origin: center center;
+}
+
+/* При открытии приложения весь интерфейс назад улетает в глубину (scale: 0.88, сильный blur как на видео) */
+body.ios-app-active #pages,
+body.ios-app-active header,
+body.ios-app-active .orb,
+body.ios-app-active .hotbar {
+  transform: scale(0.88) translateY(8px);
+  filter: blur(14px) brightness(0.8);
+  pointer-events: none;
+}
+
+/* 2. Подложка (Overlay) с мягким градиентом затемнения */
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 100;
+  isolation: isolate;
+  background: rgba(0, 0, 0, 0.42);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.48s cubic-bezier(0.25, 1, 0.35, 1),
+              visibility 0s linear 0.65s,
+              backdrop-filter 0.55s ease,
+              -webkit-backdrop-filter 0.55s ease;
+}
+
+.overlay.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 0.58s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0s,
+              backdrop-filter 0.62s ease,
+              -webkit-backdrop-filter 0.62s ease;
+}
+
+/* 3. Модальное окно (App Window) с точным морфингом из рамок кнопки */
+.overlay .modal {
+  will-change: transform, opacity, border-radius, box-shadow;
+  transform-origin: center center;
+  overflow: hidden !important; /* Обязательно, чтобы контент обрезался по форме рамки во время растягивания */
+  
+  /* Начальное положение: точно в границах и координатах нажатой кнопки */
+  transform: translate(var(--ox, 0px), var(--oy, 0px)) scale(var(--sx, 0.3), var(--sy, 0.38));
+  opacity: 0;
+  
+  /* Точное совпадение скругления со скруглением кнопки 28px */
+  border-radius: calc(28px / var(--sx, 0.3)) / calc(28px / var(--sy, 0.38));
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  
+  /* Закрытие (возврат в иконку как свайп домой) */
+  transition: transform 0.52s cubic-bezier(0.25, 1, 0.35, 1),
+              opacity 0.35s ease 0.12s,
+              border-radius 0.52s cubic-bezier(0.25, 1, 0.35, 1),
+              box-shadow 0.52s ease;
+}
+
+/* Конечное состояние: окно распахнулось на экран с пружинящим затуханием Apple Spring */
+.overlay.open .modal {
+  transform: none;
+  opacity: 1;
+  border-radius: 28px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55), 0 0 40px var(--glowc);
+  transition: transform 0.62s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.28s ease,
+              border-radius 0.62s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.62s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 4. Кросс-фейд содержимого окна: контент плавно проявляется, исключая сплющивание текста */
+.overlay .modal > * {
+  transition: opacity 0.38s ease 0.16s,
+              transform 0.58s cubic-bezier(0.16, 1, 0.3, 1) 0.08s;
+  will-change: opacity, transform;
+}
+
+.overlay:not(.open) .modal > * {
+  opacity: 0;
+  transform: scale(0.92) translateY(16px);
+  transition: opacity 0.22s ease, transform 0.3s ease;
+}
+
+/* 5. Упругий тактильный отклик иконки (App Tap scale down) */
+.big {
+  -webkit-tap-highlight-color: transparent;
+  transform-origin: center center;
+  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s, border-color 0.25s;
+}
+
+.big:active {
+  transform: scale(0.91) !important;
+  transition-duration: 0.08s;
+}
+
+@media (max-width: 640px) {
+  .overlay { padding: 10px; }
+  .overlay.open .modal { border-radius: 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #pages, header, .orb, .hotbar, .overlay, .overlay .modal {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1409,22 +1532,79 @@ function goTab(t){
   }
   box.innerHTML=h;
 })();
-/* ===== otkrytie igr iz polozheniya kartochki ===== */
+/* ===== Расчет физических рамок кнопки и растягивание в модальное окно (iOS App Launch) ===== */
 (function(){
-  var MAP={openUp:"upOv",openLud:"ludOv",openSt:"stOv",openSl:"slOv",openCo:"coOv"};
-  function origin(e){
-    var b=e.target&&e.target.closest?e.target.closest(".big"):null;
-    if(!b)return;
-    var id=MAP[b.id]||(b.closest("#shBoxList")?"boxOv":null);
-    if(!id)return;
-    var ov=$(id),m=ov.querySelector(".modal"),r=b.getBoundingClientRect();
-    var mw=m.offsetWidth||360,sc=Math.max(.18,Math.min(.9,r.width/mw));
-    ov.style.setProperty("--ox",(r.left+r.width/2-window.innerWidth/2)+"px");
-    ov.style.setProperty("--oy",(r.top+r.height/2-window.innerHeight/2)+"px");
-    ov.style.setProperty("--os",sc.toFixed(3));
+  var MAP = { openUp: "upOv", openLud: "ludOv", openSt: "stOv", openSl: "slOv", openCo: "coOv" };
+  var lastBtn = null;
+
+  function handleCardClick(e) {
+    var btn = e.target && e.target.closest ? e.target.closest(".big") : null;
+    if (!btn) return;
+    var targetId = MAP[btn.id] || (btn.closest("#shBoxList") ? "boxOv" : null);
+    if (!targetId) return;
+
+    var ov = $(targetId);
+    if (!ov) return;
+
+    var m = ov.querySelector(".modal");
+    if (!m) return;
+
+    lastBtn = btn;
+
+    // 1. Координаты нажатой иконки
+    var bRect = btn.getBoundingClientRect();
+    
+    // 2. Размеры целевого окна
+    var mWidth = m.offsetWidth || Math.min(window.innerWidth - 32, 760);
+    var mHeight = m.offsetHeight || 520;
+
+    // 3. Расчет масштабирования по осям X и Y
+    var scaleX = Math.max(0.12, Math.min(0.95, bRect.width / mWidth));
+    var scaleY = Math.max(0.12, Math.min(0.95, bRect.height / mHeight));
+
+    // 4. Расчет смещения центра окна в центр иконки
+    var bCenterX = bRect.left + bRect.width / 2;
+    var bCenterY = bRect.top + bRect.height / 2;
+
+    var mCenterX = window.innerWidth / 2;
+    var mCenterY = window.innerHeight / 2;
+
+    var offsetX = bCenterX - mCenterX;
+    var offsetY = bCenterY - mCenterY;
+
+    // Передаем параметры в CSS-переменные оверлея
+    ov.style.setProperty("--ox", offsetX.toFixed(2) + "px");
+    ov.style.setProperty("--oy", offsetY.toFixed(2) + "px");
+    ov.style.setProperty("--sx", scaleX.toFixed(4));
+    ov.style.setProperty("--sy", scaleY.toFixed(4));
   }
-  document.addEventListener("click",origin,true);
+
+  // Наблюдатель за состоянием окон для мгновенного включения отдаления рабочего стола (iOS Wallpaper pushback)
+  var observer = new MutationObserver(function() {
+    var hasActiveApp = !!document.querySelector(".overlay.open");
+    document.body.classList.toggle("ios-app-active", hasActiveApp);
+    
+    // Если окно закрылось — актуализируем позицию для обратной анимации схлопывания
+    if (!hasActiveApp && lastBtn) {
+      var bRect = lastBtn.getBoundingClientRect();
+      var bCenterX = bRect.left + bRect.width / 2;
+      var bCenterY = bRect.top + bRect.height / 2;
+      var mCenterX = window.innerWidth / 2;
+      var mCenterY = window.innerHeight / 2;
+      document.querySelectorAll(".overlay").forEach(function(ov) {
+        ov.style.setProperty("--ox", (bCenterX - mCenterX).toFixed(2) + "px");
+        ov.style.setProperty("--oy", (bCenterY - mCenterY).toFixed(2) + "px");
+      });
+    }
+  });
+
+  document.querySelectorAll(".overlay").forEach(function(el) {
+    observer.observe(el, { attributes: true, attributeFilter: ["class"] });
+  });
+
+  document.addEventListener("click", handleCardClick, true);
 })();
+
 </script>
 </body>
 </html>
