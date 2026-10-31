@@ -809,7 +809,7 @@ function buildThemes(){var h="";THEMES.forEach(function(o){h+='<button class="th
 $("themes").addEventListener("click",function(e){var b=e.target.closest(".th");if(!b)return;curTheme=b.getAttribute("data-k");document.documentElement.setAttribute("data-skin",curTheme);saveProf();buildThemes()});
 function accRefresh(){var on=!!acct.id;$("idLine").hidden=!on;$("idV").textContent=acct.id||"";$("accOff").hidden=on;$("accOn").hidden=!on;$("accId").textContent=acct.id||"";$("pAcc").textContent=on?"Аккаунт":"Войти / Зарегистрироваться"}
 var devPass=null,devMode=1,upBusy=false,devActive=false,devTarget=null,devInfo=null,myFrame=null;
-function gErr(e){var m=String(e&&e.message||e);if(/funds/.test(m))return"Недостаточно средств";if(/auth/.test(m))return"Войди в аккаунт, чтобы играть";if(/bad bet/.test(m))return"Некорректная ставка";if(/Failed to fetch/i.test(m))return"Нет связи с сервером";if(/function|schema/i.test(m))return"На сервере нет игровых функций. Выполни supabase_secure.sql";return"Ошибка: "+m}
+function gErr(e){var m=String(e&&e.message||e);if(/funds/.test(m))return"Недостаточно средств";if(/auth/.test(m))return"Войди в аккаунт, чтобы играть";if(/bad bet/.test(m))return"Некорректная ставка";if(/Failed to fetch|Load failed|NetworkError|timeout/i.test(m))return"Сервер не отвечает. Проверь интернет или VPN и попробуй ещё раз";if(/function|schema/i.test(m))return"На сервере нет игровых функций. Выполни supabase_secure.sql";return"Ошибка: "+m}
 function profView(v){["Menu","Name","Theme","Acc","Dev","DevId","DevMenu","DevForm","DevFrame","DevDel","Shop","ShopFr","ShopUp","ShopBox","Top"].forEach(function(k){$("pv"+k).hidden=v!==k.toLowerCase()});$("profT").textContent={menu:"Профиль",name:"Изменить имя",theme:"Изменить тему",acc:"Аккаунт",dev:"Режим разработчика",devid:"Режим разработчика",devmenu:"Режим разработчика",devform:"Режим разработчика",devframe:"Выдать рамку",devdel:"Удалить аккаунт",shop:"Магазин",shopfr:"Рамки",shopup:"Повышение шансов",shopbox:"Лаки боксы",top:"Топ-100 по балансу"}[v];if(v.indexOf("dev")!==0)devPass=null;if(v!=="top")topSeq++;accRefresh()}
 $("pAcc").onclick=function(){profView("acc")};
 function openProf(){profView("menu");$("profOv").classList.add("open")}
@@ -821,14 +821,34 @@ document.querySelectorAll("[data-back]").forEach(function(b){b.onclick=function(
 $("nameSave").onclick=function(){var n=$("nameIn").value.trim();if(!n){$("nameErr").textContent="Имя не может быть пустым";return}$("uname").textContent=n;saveProf();profView("menu")};
 $("nameIn").addEventListener("keydown",function(e){if(e.key==="Enter")$("nameSave").click()});
 var SB="https://khqvcwfcotplgfmefwnd.supabase.co",KEY="sb_publishable_ckCz0Gj3zGXbWjJK_pLiDg_C9FfFtsr";
+var netEl=null;
+function netBar(show){
+  if(!netEl){
+    netEl=document.createElement("div");netEl.id="netBar";netEl.setAttribute("role","status");
+    netEl.textContent="Нет связи с сервером. Проверь интернет или VPN";
+    netEl.style.cssText="position:fixed;top:calc(8px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:300;padding:10px 16px;border-radius:999px;background:rgba(255,77,94,.92);color:#fff;font-weight:700;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.4);max-width:calc(100% - 24px);text-align:center;display:none";
+    document.body.appendChild(netEl);
+  }
+  netEl.style.display=show?"block":"none";
+}
+function sfetch(url,o){
+  o=o||{};
+  var c=typeof AbortController!=="undefined"?new AbortController():null,t=null;
+  if(c){o.signal=c.signal;t=setTimeout(function(){c.abort()},15000)}
+  return fetch(url,o).then(function(r){if(t)clearTimeout(t);netBar(false);return r},function(e){
+    if(t)clearTimeout(t);netBar(true);
+    if(e&&e.name==="AbortError")throw new Error("timeout");
+    throw e;
+  });
+}
 var sess=null;try{sess=JSON.parse(localStorage.getItem("bd_sess")||"null")}catch(e){}
 var acct={id:sess&&sess.id||null},sT=null;
 function sbH(t){var h={"apikey":KEY,"Content-Type":"application/json"};if(t)h.Authorization="Bearer "+t;return h}
-async function sbAuth(path,body){var r=await fetch(SB+"/auth/v1/"+path,{method:"POST",headers:sbH(),body:JSON.stringify(body)});var j=await r.json().catch(function(){return{}});if(!r.ok)throw new Error(j.msg||j.error_description||j.message||"Ошибка");return j}
+async function sbAuth(path,body){var r=await sfetch(SB+"/auth/v1/"+path,{method:"POST",headers:sbH(),body:JSON.stringify(body)});var j=await r.json().catch(function(){return{}});if(!r.ok)throw new Error(j.msg||j.error_description||j.message||"Ошибка");return j}
 function mail(id){return "u"+id+"@burmaldima.app"}
 function setSess(j,id){sess={tok:j.access_token,ref:j.refresh_token,uid:j.user.id,id:id};try{localStorage.setItem("bd_sess",JSON.stringify(sess))}catch(e){}acct.id=id}
-async function pGet(retry){var r=await fetch(SB+"/rest/v1/profiles?select=*&uid=eq."+sess.uid,{headers:sbH(sess.tok)});if(r.status===401&&!retry){var j=await sbAuth("token?grant_type=refresh_token",{refresh_token:sess.ref});setSess(j,sess.id);return pGet(true)}if(!r.ok)return null;return (await r.json())[0]||null}
-async function pPut(retry){var r=await fetch(SB+"/rest/v1/profiles?uid=eq."+sess.uid,{method:"PATCH",headers:sbH(sess.tok),body:JSON.stringify({name:$("uname").textContent,theme:curTheme})});
+async function pGet(retry){var r=await sfetch(SB+"/rest/v1/profiles?select=*&uid=eq."+sess.uid,{headers:sbH(sess.tok)});if(r.status===401&&!retry){var j=await sbAuth("token?grant_type=refresh_token",{refresh_token:sess.ref});setSess(j,sess.id);return pGet(true)}if(!r.ok)return null;return (await r.json())[0]||null}
+async function pPut(retry){var r=await sfetch(SB+"/rest/v1/profiles?uid=eq."+sess.uid,{method:"PATCH",headers:sbH(sess.tok),body:JSON.stringify({name:$("uname").textContent,theme:curTheme})});
   if(r.status===401&&!retry){var j=await sbAuth("token?grant_type=refresh_token",{refresh_token:sess.ref});setSess(j,sess.id);return pPut(true)}return r}
 var lastBal=null;
 function syncRemote(){if(!sess)return;clearTimeout(sT);sT=setTimeout(function(){sT=null;pPut().catch(function(){})},600)}
@@ -927,7 +947,7 @@ document.addEventListener("keydown",function(e){if(e.key==="Escape"){$("resOv").
 
 function accTab(reg){$("boxReg").hidden=!reg;$("boxLog").hidden=reg;$("tabReg").classList.toggle("on",reg);$("tabLog").classList.toggle("on",!reg);$("accErr").textContent=""}
 $("tabReg").onclick=function(){accTab(true)};$("tabLog").onclick=function(){accTab(false)};
-function nice(m){m=String(m);if(/Database error/i.test(m))return"Не удалось создать аккаунт. Отметь обе галочки и попробуй ещё раз. Если не помогает — выполни supabase_top_chew_consent.sql в Supabase";if(/Invalid login/i.test(m))return"Неверный ID или пароль";if(/rate|too many/i.test(m))return"Слишком много попыток, подожди немного";if(/password/i.test(m))return"Пароль слишком простой или короткий";if(/Failed to fetch|network/i.test(m))return"Нет связи с сервером";return m}
+function nice(m){m=String(m);if(/Database error/i.test(m))return"Не удалось создать аккаунт. Отметь обе галочки и попробуй ещё раз. Если не помогает — выполни supabase_top_chew_consent.sql в Supabase";if(/Invalid login/i.test(m))return"Неверный ID или пароль";if(/rate|too many/i.test(m))return"Слишком много попыток, подожди немного";if(/password/i.test(m))return"Пароль слишком простой или короткий";if(/Failed to fetch|Load failed|NetworkError|timeout|network/i.test(m))return"Сервер не отвечает. Проверь интернет или VPN и попробуй ещё раз";return m}
 $("accReg").onclick=async function(){
   var b=this,pw=$("regPw").value,nm=$("regName").value.trim().replace(/\s+/g," ");
   if(!($("cn18").checked&&$("cnTerms").checked)){regSync();return}
@@ -1010,7 +1030,7 @@ $("slGo").onclick=async function(){
   },800+2*500+250);
 };
 async function rpc(name,body,retry){
-  var r=await fetch(SB+"/rest/v1/rpc/"+name,{method:"POST",headers:sbH(sess.tok),body:JSON.stringify(body)});
+  var r=await sfetch(SB+"/rest/v1/rpc/"+name,{method:"POST",headers:sbH(sess.tok),body:JSON.stringify(body)});
   if(r.status===401&&!retry){var j=await sbAuth("token?grant_type=refresh_token",{refresh_token:sess.ref});setSess(j,sess.id);return rpc(name,body,true)}
   var d=await r.json().catch(function(){return null});
   if(!r.ok)throw new Error((d&&d.message)||"Ошибка");
@@ -1038,7 +1058,7 @@ function chewSvg(){
 }
 var topSeq=0,TOP_MEDAL=["🥇","🥈","🥉"];
 async function rpcPub(name,body){
-  var r=await fetch(SB+"/rest/v1/rpc/"+name,{method:"POST",headers:sbH(null),body:JSON.stringify(body)});
+  var r=await sfetch(SB+"/rest/v1/rpc/"+name,{method:"POST",headers:sbH(null),body:JSON.stringify(body)});
   var d=await r.json().catch(function(){return null});
   if(!r.ok)throw new Error((d&&d.message)||"Ошибка");
   return d;
@@ -1132,7 +1152,7 @@ var FR_ICON={crown:"👑"};
 function frameName(k){var f=FRAMES.filter(function(x){return x.k===k})[0];return f?f.t.replace(/^\S+\s/,""):""}
 function updateFrame(){frameApply($("avWrap"),myFrame)}
 function devWho(){var i=devInfo;$("devWho").textContent=i.name+" · ID "+i.id+" · "+fmt(+i.balance)+(i.frame?" · рамка: "+frameName(i.frame):"")}
-function dErr(e){var m=String(e&&e.message||e);if(/not dev/i.test(m))return"Корону можно выдать только тому, кто входил в режим разработчика";if(/not found/i.test(m))return"Аккаунт с таким ID не найден";if(/bad password/i.test(m))return"Неверный пароль";if(/self/i.test(m))return"Нельзя удалить свой аккаунт";if(/Failed to fetch/i.test(m))return"Нет связи с сервером";if(/function|schema/i.test(m))return"На сервере нет новых функций. Выполни supabase_frames.sql";return"Ошибка: "+m}
+function dErr(e){var m=String(e&&e.message||e);if(/not dev/i.test(m))return"Корону можно выдать только тому, кто входил в режим разработчика";if(/not found/i.test(m))return"Аккаунт с таким ID не найден";if(/bad password/i.test(m))return"Неверный пароль";if(/self/i.test(m))return"Нельзя удалить свой аккаунт";if(/Failed to fetch|Load failed|NetworkError|timeout/i.test(m))return"Сервер не отвечает. Проверь интернет или VPN и попробуй ещё раз";if(/function|schema/i.test(m))return"На сервере нет новых функций. Выполни supabase_frames.sql";return"Ошибка: "+m}
 $("pDev").onclick=function(){$("devPw").value="";$("devErr").textContent="";profView("dev")};
 $("devEnter").onclick=async function(){
   var b=this,pw=$("devPw").value;$("devErr").textContent="";
@@ -1218,9 +1238,10 @@ setInterval(pollBal,8000);
 document.addEventListener("visibilitychange",pollBal);
 if($("uname").textContent==="DIMASIK_PRO001")$("uname").textContent="Legitный";
 var ckInfo=null;
+var ckFail=false;
 async function ckRefresh(){
-  if(!sess){ckInfo=null;$("ckBang").hidden=true;return}
-  try{ckInfo=await rpc("checkin_status",{});$("ckBang").hidden=!ckInfo.can_claim}catch(e){}
+  if(!sess){ckInfo=null;ckFail=false;$("ckBang").hidden=true;return}
+  try{ckInfo=await rpc("checkin_status",{});ckFail=false;$("ckBang").hidden=!ckInfo.can_claim}catch(e){ckFail=true}
 }
 function ckRender(){
   var g=$("ckDays");g.innerHTML="";
@@ -1233,6 +1254,7 @@ function ckRender(){
   }
   var b=$("ckGo");
   if(!sess){b.disabled=true;b.textContent="Войди в аккаунт"}
+  else if(!ckInfo&&ckFail){b.disabled=false;b.textContent="Повторить";$("ckMsg").style.color="";$("ckMsg").textContent="Не удалось связаться с сервером"}
   else if(!ckInfo){b.disabled=true;b.textContent="Загрузка…"}
   else if(ckInfo.can_claim){b.disabled=false;b.textContent="Забрать"}
   else{b.disabled=true;b.textContent="Приходи завтра"}
@@ -1243,6 +1265,7 @@ $("closeCk").onclick=closeCk;
 $("ckOv").addEventListener("click",function(e){if(e.target===this)closeCk()});
 document.addEventListener("keydown",function(e){if(e.key==="Escape")closeCk()});
 $("ckGo").onclick=async function(){
+  if(ckFail&&!ckInfo){this.disabled=true;this.textContent="Загрузка…";$("ckMsg").textContent="";await ckRefresh();ckRender();return}
   var m=$("ckMsg");this.disabled=true;m.textContent="";m.style.color="";
   try{
     var r=await rpc("checkin_claim",{});
@@ -1323,7 +1346,7 @@ function sErr(e){
   if(/owned/.test(m))return"Уже куплено";
   if(/order/.test(m))return"Сначала купи предыдущий уровень";
   if(/crown/.test(m))return"Корону нельзя снять";
-  if(/Failed to fetch/i.test(m))return"Нет связи с сервером";
+  if(/Failed to fetch|Load failed|NetworkError|timeout/i.test(m))return"Сервер не отвечает. Проверь интернет или VPN и попробуй ещё раз";
   return"Ошибка: "+m;
 }
 async function shCall(name,args,msgId){
