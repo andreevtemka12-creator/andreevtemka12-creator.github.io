@@ -820,7 +820,9 @@ $("pTheme").onclick=function(){buildThemes();profView("theme")};
 document.querySelectorAll("[data-back]").forEach(function(b){b.onclick=function(){profView("menu")}});
 $("nameSave").onclick=function(){var n=$("nameIn").value.trim();if(!n){$("nameErr").textContent="Имя не может быть пустым";return}$("uname").textContent=n;saveProf();profView("menu")};
 $("nameIn").addEventListener("keydown",function(e){if(e.key==="Enter")$("nameSave").click()});
-var SB="https://khqvcwfcotplgfmefwnd.supabase.co",KEY="sb_publishable_ckCz0Gj3zGXbWjJK_pLiDg_C9FfFtsr";
+var DIRECT="https://khqvcwfcotplgfmefwnd.supabase.co",
+    SB=(location.protocol.indexOf("http")===0&&location.hostname&&!/\.github\.io$/.test(location.hostname))?location.origin+"/sb":DIRECT,
+    KEY="sb_publishable_ckCz0Gj3zGXbWjJK_pLiDg_C9FfFtsr";
 var netEl=null;
 function netBar(show){
   if(!netEl){
