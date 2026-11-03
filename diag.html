@@ -7,13 +7,15 @@ body{margin:0;padding:20px;background:#0b0f0c;color:#e8f5ec;font:16px/1.5 -apple
 h1{font-size:22px;margin:0 0 6px}p{color:#7f9a89;margin:0 0 14px}
 input{width:100%;box-sizing:border-box;padding:12px;border-radius:12px;border:1px solid #2a4a35;background:#111a14;color:#e8f5ec;font-size:16px}
 button{margin-top:12px;width:100%;padding:14px;border:0;border-radius:14px;background:#2bff7a;color:#04210f;font-weight:800;font-size:17px}
+button.s{background:#1b2a21;color:#e8f5ec;border:1px solid #2a4a35}
 .r{margin:10px 0;padding:12px;border-radius:12px;background:#111a14;border:1px solid #2a4a35}
 .ok{border-color:#2bff7a}.bad{border-color:#ff4d5e}small{color:#7f9a89}
 </style></head><body>
 <h1>Диагностика связи</h1>
-<p>Вставь адрес сайта на Vercel (например https://название.vercel.app) и нажми кнопку. Можно оставить поле пустым, тогда проверится только Supabase.</p>
-<input id="px" type="url" placeholder="https://название.vercel.app" autocapitalize="off" autocorrect="off">
-<button id="go">Запустить проверку</button>
+<p>Вставь адрес шлюза Яндекс Облака (https://….apigw.yandexcloud.net) и нажми «Проверить шлюз». Ожидаемые ответы: HTTP 401, 401 и 400.</p>
+<input id="gw" type="url" placeholder="https://….apigw.yandexcloud.net" autocapitalize="off" autocorrect="off">
+<button id="go">Проверить шлюз</button>
+<button id="gd" class="s">Проверить Supabase напрямую</button>
 <div id="out"></div>
 <script>
 var D="https://khqvcwfcotplgfmefwnd.supabase.co",K="sb_publishable_ckCz0Gj3zGXbWjJK_pLiDg_C9FfFtsr";
@@ -30,28 +32,28 @@ function test(name,url,opt){
   return fetch(url,opt).then(function(r){
     clearTimeout(tm);var ms=Date.now()-t0;
     row.className="r ok";row.firstChild.textContent=name+": ответ за "+ms+" мс";
-    row.lastChild.textContent=opt.mode==="no-cors"?"сервер достижим":"HTTP "+r.status;
+    row.lastChild.textContent="HTTP "+r.status;
   }).catch(function(e){
     clearTimeout(tm);var ms=Date.now()-t0;
     row.className="r bad";
     row.firstChild.textContent=name+": НЕ удалось ("+(e&&e.name==="AbortError"?"зависло на 15 с":"ошибка")+")";
-    row.lastChild.textContent=ms+" мс · "+(e&&e.message||"");
+    row.lastChild.textContent=ms+" мс · "+(e&&e.message||"")+" (если ошибка сразу, а не по таймауту, возможно, шлюз не отдаёт заголовки CORS)";
   });
 }
-function run(){
-  var p=$("px").value.trim().replace(/\/+$/,"");
-  try{localStorage.setItem("diag_px",p)}catch(e){}
+function suite(base,title){
   $("out").innerHTML="";
-  add("Устройство","", (navigator.onLine?"онлайн":"офлайн")+" · "+new Date().toLocaleString());
-  var seq=test("1. Supabase напрямую, простой запрос",D+"/rest/v1/?apikey="+K,{method:"GET"})
-    .then(function(){return test("2. Supabase напрямую, с заголовком",D+"/rest/v1/",{method:"GET",headers:{apikey:K}})})
-    .then(function(){return test("3. Supabase напрямую, вход (POST)",D+"/auth/v1/token?grant_type=password",{method:"POST",headers:{apikey:K,"Content-Type":"application/json"},body:JSON.stringify({email:"x@example.com",password:"x"})})});
-  if(p){
-    seq=seq.then(function(){return test("4. Сайт на Vercel",p+"/",{method:"GET",mode:"no-cors"})})
-           .then(function(){return test("5. Прокси Vercel → Supabase",p+"/sb/rest/v1/?apikey="+K,{method:"GET",mode:"no-cors"})});
-  }
-  seq.then(function(){add("Готово. Сделай скриншот этого экрана.","","")});
+  add(title,"",(navigator.onLine?"онлайн":"офлайн")+" · "+new Date().toLocaleString());
+  return test("1. Простой запрос",base+"/rest/v1/?apikey="+K,{method:"GET"})
+    .then(function(){return test("2. Запрос с заголовком",base+"/rest/v1/",{method:"GET",headers:{apikey:K}})})
+    .then(function(){return test("3. Вход (POST)",base+"/auth/v1/token?grant_type=password",{method:"POST",headers:{apikey:K,"Content-Type":"application/json"},body:JSON.stringify({email:"x@example.com",password:"x"})})})
+    .then(function(){add("Готово. Сделай скриншот этого экрана.","","")});
 }
-try{$("px").value=localStorage.getItem("diag_px")||""}catch(e){}
-$("go").onclick=run;
+$("go").onclick=function(){
+  var g=$("gw").value.trim().replace(/\/+$/,"");
+  try{localStorage.setItem("diag_gw",g)}catch(e){}
+  if(!g){$("out").innerHTML="";add("Вставь адрес шлюза","bad","");return}
+  suite(g,"Шлюз: "+g);
+};
+$("gd").onclick=function(){suite(D,"Supabase напрямую")};
+try{$("gw").value=localStorage.getItem("diag_gw")||""}catch(e){}
 </script></body></html>
