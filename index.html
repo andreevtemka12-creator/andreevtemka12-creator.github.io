@@ -1909,8 +1909,8 @@ function tpPrice(L){return 200*L-100}
 function tpUpDraw(){
   var e=tpUp==="energy",cur=e?tp.el:tp.cl,l=$("tpUpList");l.innerHTML="";
   $("tpUpT").textContent=e?"Улучшение энергии":"Улучшение силы нажатия";
-  $("tpUpBal").innerHTML="Баланс: <b>"+fmt(balance)+"</b><br>Твой уровень: <b>"+cur+"</b>";
-  for(var L=cur;L<=cur+3;L++){
+  $("tpUpBal").innerHTML="Баланс: <b>"+fmt(balance)+"</b><br>Твой уровень: <b>"+cur+" из 5</b>";
+  for(var L=1;L<=5;L++){
     (function(L){
       var have=L<=cur,next=L===cur+1;
       var val=e?numTxt(500+100*(L-1))+" энергии":numTxt(Math.round(L*10)/100)+" за нажатие";
@@ -1936,7 +1936,7 @@ async function tpBuy(btn){
     tpApply(r);tp.en=Math.min(+r.energy,tp.mx);tp.t0=performance.now();
     balance=+r.balance;setBal();tpDraw();
     m.style.color="var(--green)";m.textContent="Улучшено!";
-  }catch(e){m.textContent=gErr(e)}
+  }catch(e){m.textContent=/max level/.test(String(e&&e.message||e))?"Достигнут максимальный уровень":gErr(e)}
   tpUpDraw();
 }
 $("tpUpE").onclick=function(){tpUpOpen("energy")};
