@@ -542,6 +542,7 @@ body.ios-app-active .hotbar {
           <p style="color:var(--mute);margin:0 0 12px">Тебе выдадут ID из 4 цифр и 100 Бурмалдакойнов на старт. Придумай имя и пароль (минимум 6 символов), с ним можно войти с любого устройства.</p>
           <div class="field"><label for="regName">Имя</label><input id="regName" type="text" maxlength="20" autocomplete="nickname"></div>
           <div class="field"><label for="regPw">Пароль</label><input id="regPw" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+          <div class="field"><label for="regPw2">Повтор пароля</label><input id="regPw2" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
           <div class="consent">
             <label class="ck"><input type="checkbox" id="cn18"><span>Мне исполнилось 18 лет, и я подтверждаю, что участвую добровольно</span></label>
             <label class="ck"><input type="checkbox" id="cnTerms"><span>Я понимаю, что Burmaldima — развлекательный проект, а не казино. «Бурмалдакойны» — виртуальная валюта без денежной стоимости</span></label>
@@ -565,9 +566,26 @@ body.ios-app-active .hotbar {
       </div>
       <div id="accOn" hidden>
         <div class="field"><label>Твой ID (запомни его)</label><div class="idv" id="accId"></div></div>
+        <button class="pitem" id="accPw" style="margin-top:16px">Сменить пароль</button>
+        <button class="pitem" id="accDel">Удалить аккаунт</button>
         <button class="go" id="accOut" style="margin-top:16px">Выйти</button>
       </div>
       <button class="back" data-back>Назад</button>
+    </div>
+    <div id="pvPw" hidden>
+      <div class="field"><label for="pwCur">Текущий пароль</label><input id="pwCur" type="password" autocomplete="current-password"></div>
+      <div class="field"><label for="pwNew">Новый пароль</label><input id="pwNew" type="password" autocomplete="new-password"></div>
+      <div class="field"><label for="pwNew2">Повтор нового пароля</label><input id="pwNew2" type="password" autocomplete="new-password"></div>
+      <button class="go" id="pwGo" style="margin-top:0">Сменить пароль</button>
+      <div class="err" id="pwMsg"></div>
+      <button class="back" id="pwBack">Назад</button>
+    </div>
+    <div id="pvDelMe" hidden>
+      <p style="color:var(--mute);margin:0 0 12px">Аккаунт будет удалён вместе с балансом, рамками и прогрессом. Введи пароль, чтобы продолжить.</p>
+      <div class="field"><label for="dmPw">Пароль</label><input id="dmPw" type="password" autocomplete="current-password"></div>
+      <button class="go" id="dmGo" style="margin-top:0;background:#ff4d5e;color:#fff">Удалить</button>
+      <div class="err" id="dmErr"></div>
+      <button class="back" id="dmBack">Назад</button>
     </div>
     <div id="pvDev" hidden>
       <p style="color:var(--mute);margin:0 0 12px">Введи пароль разработчика.</p>
@@ -664,7 +682,7 @@ body.ios-app-active .hotbar {
     <div class="err" id="ckMsg"></div></div>
     <div class="sv" id="svTasks">
       <h2>Задания</h2>
-      <p class="ck-note">Засчитываются игры со ставкой от 10 Бурмалдакойнов. Невыполненные задания обновляются по таймеру.</p>
+      <p class="ck-note">Засчитываются игры со ставкой от 50 Бурмалдакойнов. Невыполненные задания обновляются по таймеру.</p>
       <div class="tk-timer" id="tkTimer"></div>
       <div class="tk-list" id="tkList"></div>
       <div class="err" id="tkMsg"></div>
@@ -789,12 +807,24 @@ body.ios-app-active .hotbar {
 </div>
 
 <div class="overlay" id="tpUpOv">
-  <div class="modal" role="dialog" aria-label="Улучшение" style="width:min(420px,100%)">
+  <div class="modal" role="dialog" aria-label="Улучшение" style="width:min(460px,100%)">
     <button class="x" id="closeTpUp" aria-label="Закрыть">×</button>
     <h2 id="tpUpT">Улучшение</h2>
-    <p class="ck-note" id="tpUpD"></p>
-    <button class="go" id="tpUpGo">Купить</button>
+    <div class="shop-bal" id="tpUpBal"></div>
+    <p class="shop-note">Уровни покупаются по очереди.</p>
+    <div id="tpUpList"></div>
     <div class="err" id="tpUpMsg"></div>
+  </div>
+</div>
+
+<div class="overlay" id="dmOv">
+  <div class="modal" role="dialog" aria-label="Подтверждение удаления" style="width:min(440px,100%)">
+    <h2 style="font-size:24px">Удалить аккаунт?</h2>
+    <p class="ck-note" style="text-align:left">Это действие нельзя отменить. Баланс, рамки и прогресс будут потеряны безвозвратно.</p>
+    <label class="ck"><input type="checkbox" id="dmCk"><span>Я понимаю, что аккаунт нельзя будет вернуть, и несу за это полную ответственность</span></label>
+    <button class="go" id="dmFinal" style="margin-top:14px;background:#ff4d5e;color:#fff" disabled>Удалить</button>
+    <button class="back" id="dmCancel">Отмена</button>
+    <div class="err" id="dmMsg"></div>
   </div>
 </div>
 
@@ -879,7 +909,7 @@ $("themes").addEventListener("click",function(e){var b=e.target.closest(".th");i
 function accRefresh(){var on=!!acct.id;$("idLine").hidden=!on;$("idV").textContent=acct.id||"";$("accOff").hidden=on;$("accOn").hidden=!on;$("accId").textContent=acct.id||"";$("pAcc").textContent=on?"Аккаунт":"Войти / Зарегистрироваться"}
 var devPass=null,devMode=1,upBusy=false,devActive=false,devTarget=null,devInfo=null,myFrame=null;
 function gErr(e){var m=String(e&&e.message||e);if(/funds/.test(m))return"Недостаточно средств";if(/auth/.test(m))return"Войди в аккаунт, чтобы играть";if(/bad bet/.test(m))return"Некорректная ставка";if(/Failed to fetch|Load failed|NetworkError|timeout/i.test(m))return"Сервер не отвечает. Проверь интернет или VPN и попробуй ещё раз";if(/function|schema/i.test(m))return"На сервере нет игровых функций. Выполни supabase_secure.sql";return"Ошибка: "+m}
-function profView(v){["Menu","Name","Theme","Acc","Dev","DevId","DevMenu","DevForm","DevFrame","DevDel","Shop","ShopFr","ShopUp","ShopBox","Top"].forEach(function(k){$("pv"+k).hidden=v!==k.toLowerCase()});$("profT").textContent={menu:"Профиль",name:"Изменить имя",theme:"Изменить тему",acc:"Аккаунт",dev:"Режим разработчика",devid:"Режим разработчика",devmenu:"Режим разработчика",devform:"Режим разработчика",devframe:"Выдать рамку",devdel:"Удалить аккаунт",shop:"Магазин",shopfr:"Рамки",shopup:"Повышение шансов",shopbox:"Лаки боксы",top:"Топ-100 по балансу"}[v];if(v.indexOf("dev")!==0)devPass=null;if(v!=="top")topSeq++;accRefresh()}
+function profView(v){["Menu","Name","Theme","Acc","Dev","DevId","DevMenu","DevForm","DevFrame","DevDel","Shop","ShopFr","ShopUp","ShopBox","Top","Pw","DelMe"].forEach(function(k){$("pv"+k).hidden=v!==k.toLowerCase()});$("profT").textContent={menu:"Профиль",name:"Изменить имя",theme:"Изменить тему",acc:"Аккаунт",dev:"Режим разработчика",devid:"Режим разработчика",devmenu:"Режим разработчика",devform:"Режим разработчика",devframe:"Выдать рамку",devdel:"Удалить аккаунт",shop:"Магазин",shopfr:"Рамки",shopup:"Повышение шансов",shopbox:"Лаки боксы",top:"Топ-100 по балансу",pw:"Смена пароля",delme:"Удаление аккаунта"}[v];if(v.indexOf("dev")!==0)devPass=null;if(v!=="top")topSeq++;accRefresh()}
 $("pAcc").onclick=function(){profView("acc")};
 function openProf(){profView("menu");$("profOv").classList.add("open")}
 $("closeProf").onclick=function(){$("profOv").classList.remove("open")};
@@ -1033,6 +1063,7 @@ $("accReg").onclick=async function(){
   if(!($("cn18").checked&&$("cnTerms").checked)){regSync();return}
   if(nm.length<2){$("accErr").textContent="Придумай имя от 2 до 20 символов";return}
   if(pw.length<6){$("accErr").textContent="Пароль минимум 6 символов";return}
+  if(pw!==$("regPw2").value){$("accErr").textContent="Пароли не совпадают";return}
   $("accErr").textContent="";b.disabled=true;
   try{
     for(var i=0;i<30;i++){
@@ -1045,7 +1076,7 @@ $("accReg").onclick=async function(){
       $("uname").textContent=nm;try{await pPut()}catch(x){}saveProf();
       break;
     }
-    $("regPw").value="";$("regName").value="";$("cn18").checked=false;$("cnTerms").checked=false;accRefresh();tgShow();
+    $("regPw").value="";$("regPw2").value="";$("regName").value="";$("cn18").checked=false;$("cnTerms").checked=false;accRefresh();tgShow();
   }catch(e){$("accErr").textContent=nice(e.message)}
   regSync();
 };
@@ -1521,14 +1552,11 @@ var BX={
 };
 var BX_LOOK={yesno:{body:"#2f6fd0",lid:"#4a8af0",band:"#d3dbe5"},luck:{body:"#8a3fd1",lid:"#a85cf0",band:"#ffd24a"},bum:{body:"#7a5230",lid:"#98683f",band:"#b0b6bd"}};
 function chestSvg(k){
-  var c=BX_LOOK[k]||BX_LOOK.yesno;
-  return '<svg viewBox="0 0 120 120" aria-hidden="true"><rect x="8" y="8" width="104" height="104" rx="22" fill="#0a1f13" stroke="#2bff7a" stroke-width="3"/>'+
-    '<rect x="26" y="58" width="68" height="36" rx="5" fill="'+c.body+'" stroke="#000" stroke-opacity=".35" stroke-width="2"/>'+
-    '<path d="M26 58V48a20 20 0 0 1 20-20h28a20 20 0 0 1 20 20v10Z" fill="'+c.lid+'" stroke="#000" stroke-opacity=".35" stroke-width="2"/>'+
-    '<rect x="26" y="54" width="68" height="6" fill="'+c.band+'"/>'+
-    '<rect x="40" y="28" width="7" height="66" fill="'+c.band+'" opacity=".85"/><rect x="73" y="28" width="7" height="66" fill="'+c.band+'" opacity=".85"/>'+
-    '<rect x="53" y="52" width="14" height="16" rx="3" fill="#ffd24a" stroke="#000" stroke-opacity=".35" stroke-width="1.5"/>'+
-    '<circle cx="60" cy="59" r="2.5" fill="#3a2a00"/></svg>';
+  var x={yesno:'',luck:'<path d="M55 38a5 5 0 1 1 7 4.6c-1.3.6-2 1.4-2 2.8"/><path d="M60 50.5v.1"/>',bum:'<path d="M44 60v30M76 60v30"/>'}[k]||'';
+  return '<svg viewBox="0 0 120 120" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="opacity:.85">'+
+    '<path d="M24 56v34a4 4 0 0 0 4 4h64a4 4 0 0 0 4-4V56"/>'+
+    '<path d="M24 56V46a18 18 0 0 1 18-18h36a18 18 0 0 1 18 18v10Z"/>'+
+    '<rect x="54" y="53" width="12" height="14" rx="3"/>'+x+'</svg>';
 }
 function shRenderBox(){
   var l=$("shBoxList");l.innerHTML="";l.className="bx-grid";
@@ -1873,35 +1901,98 @@ setInterval(function(){if(curTab==="check"&&curSub==="tap")tpDraw()},250);
 document.addEventListener("visibilitychange",function(){if(document.hidden)tpFlush()});
 /* uluchsheniya */
 var tpUp=null;
+function tpPrice(L){return 200*L-100}
 function tpUpDraw(){
-  var e=tpUp==="energy",lvl=e?tp.el+1:tp.cl+1,price=e?tp.ep:tp.cp;
-  $("tpUpT").textContent=e?"Улучшение: энергия":"Улучшение: сила нажатия";
-  $("tpUpD").textContent=e
-    ?"Уровень "+lvl+": максимум энергии "+numTxt(tp.mx)+" → "+numTxt(tp.mx+100)
-    :"Уровень "+lvl+": за нажатие "+numTxt(tp.cpt)+" → "+numTxt(Math.round((tp.cpt+0.1)*100)/100);
-  $("tpUpGo").textContent="Купить за "+fmt(price);
+  var e=tpUp==="energy",cur=e?tp.el:tp.cl,l=$("tpUpList");l.innerHTML="";
+  $("tpUpT").textContent=e?"Улучшение энергии":"Улучшение силы нажатия";
+  $("tpUpBal").innerHTML="Баланс: <b>"+fmt(balance)+"</b>";
+  for(var L=cur;L<=cur+5;L++){
+    (function(L){
+      var have=L<=cur,next=L===cur+1;
+      var val=e?numTxt(500+100*(L-1))+" энергии":numTxt(Math.round(L*10)/100)+" за нажатие";
+      var d=sitem("Уровень "+L+": "+val,have?"Куплен":fmt(tpPrice(L)),have?"on":next?"":"locked");
+      var b=document.createElement("button");
+      b.textContent=have?"✓":next?"Купить":"🔒";b.disabled=!next;
+      if(next)b.onclick=function(){tpBuy(b)};
+      d.appendChild(b);l.appendChild(d);
+    })(L);
+  }
 }
 function tpUpOpen(kind){
   if(!sess){$("tpMsg").style.color="";$("tpMsg").textContent="Войди в аккаунт, чтобы улучшать";return}
-  tpUp=kind;tpUpDraw();$("tpUpMsg").style.color="";$("tpUpMsg").textContent="";
+  tpUp=kind;$("tpUpMsg").style.color="";$("tpUpMsg").textContent="";tpUpDraw();
   $("tpUpOv").classList.add("open");
 }
 function tpUpClose(){$("tpUpOv").classList.remove("open")}
+async function tpBuy(btn){
+  var m=$("tpUpMsg");m.style.color="";m.textContent="";btn.disabled=true;
+  try{
+    await tpFlush();
+    var r=await rpc("tap_upgrade",{kind:tpUp});
+    tpApply(r);tp.en=Math.min(+r.energy,tp.mx);tp.t0=performance.now();
+    balance=+r.balance;setBal();tpDraw();
+    m.style.color="var(--green)";m.textContent="Улучшено!";
+  }catch(e){m.textContent=gErr(e)}
+  tpUpDraw();
+}
 $("tpUpE").onclick=function(){tpUpOpen("energy")};
 $("tpUpP").onclick=function(){tpUpOpen("power")};
 $("closeTpUp").onclick=tpUpClose;
 $("tpUpOv").addEventListener("click",function(e){if(e.target===this)tpUpClose()});
 document.addEventListener("keydown",function(e){if(e.key==="Escape")tpUpClose()});
-$("tpUpGo").onclick=async function(){
-  var b=this,m=$("tpUpMsg");b.disabled=true;m.style.color="";m.textContent="";
+/* ===== smena parolya i udalenie akkaunta ===== */
+$("accPw").onclick=function(){$("pwCur").value="";$("pwNew").value="";$("pwNew2").value="";$("pwMsg").textContent="";$("pwMsg").style.color="";profView("pw")};
+$("accDel").onclick=function(){$("dmPw").value="";$("dmErr").textContent="";profView("delme")};
+$("pwBack").onclick=function(){profView("acc")};
+$("dmBack").onclick=function(){profView("acc")};
+$("pwGo").onclick=async function(){
+  var b=this,cur=$("pwCur").value,n1=$("pwNew").value,n2=$("pwNew2").value,m=$("pwMsg");
+  m.style.color="";m.textContent="";
+  if(!sess||!acct.id){m.textContent="Войди в аккаунт";return}
+  if(!cur||!n1||!n2){m.textContent="Заполни все поля";return}
+  if(n1.length<6){m.textContent="Новый пароль — минимум 6 символов";return}
+  if(n1!==n2){m.textContent="Новые пароли не совпадают";return}
+  if(n1===cur){m.textContent="Новый пароль совпадает с текущим";return}
+  b.disabled=true;
   try{
-    await tpFlush();
-    var r=await rpc("tap_upgrade",{kind:tpUp});
-    tpApply(r);tp.en=Math.min(+r.energy,tp.mx);tp.t0=performance.now();
-    balance=+r.balance;setBal();tpUpDraw();tpDraw();
-    m.style.color="var(--green)";m.textContent="Улучшено!";
-  }catch(e){m.textContent=gErr(e)}
+    var j=await sbAuth("token?grant_type=password",{email:mail(acct.id),password:cur});
+    setSess(j,acct.id);
+    var r=await sfetch(SB+"/auth/v1/user",{method:"PUT",headers:sbH(sess.tok),body:JSON.stringify({password:n1})});
+    if(!r.ok){var d=await r.json().catch(function(){return{}});throw new Error(d.msg||d.message||d.error_description||"Ошибка")}
+    $("pwCur").value="";$("pwNew").value="";$("pwNew2").value="";
+    m.style.color="var(--green)";m.textContent="Пароль изменён";
+  }catch(e){
+    var t=String(e&&e.message||e);
+    m.textContent=/Invalid login/i.test(t)?"Текущий пароль неверный":nice(t);
+  }
   b.disabled=false;
+};
+$("dmGo").onclick=function(){
+  var e=$("dmErr");e.textContent="";
+  if(!$("dmPw").value){e.textContent="Введи пароль";return}
+  $("dmCk").checked=false;$("dmFinal").disabled=true;$("dmMsg").textContent="";
+  $("dmOv").classList.add("open");
+};
+$("dmCk").onchange=function(){$("dmFinal").disabled=!this.checked};
+function dmClose(){$("dmOv").classList.remove("open")}
+$("dmCancel").onclick=dmClose;
+$("dmOv").addEventListener("click",function(e){if(e.target===this)dmClose()});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")dmClose()});
+$("dmFinal").onclick=async function(){
+  var b=this,m=$("dmMsg"),pw=$("dmPw").value;
+  if(!$("dmCk").checked||!acct.id)return;
+  b.disabled=true;m.textContent="";
+  try{
+    var j=await sbAuth("token?grant_type=password",{email:mail(acct.id),password:pw});
+    setSess(j,acct.id);
+    await rpc("delete_my_account",{pw:pw});
+    try{localStorage.removeItem("bd_sess");localStorage.removeItem("depka_profile")}catch(x){}
+    location.reload();return;
+  }catch(e){
+    var t=String(e&&e.message||e);
+    m.textContent=/Invalid login|bad password/i.test(t)?"Неверный пароль":/function|schema/i.test(t)?"На сервере нет функции удаления. Выполни supabase_update6.sql":nice(t);
+    b.disabled=!$("dmCk").checked;
+  }
 };
 </script>
 </body>
