@@ -448,6 +448,43 @@ body.ios-app-active .hotbar {
   }
 }
 
+
+/* ===== chekap: podvkladki, zadaniya, tapalka ===== */
+.subbar{position:relative;display:flex;gap:2px;width:min(520px,100%);margin:0 auto 14px;padding:5px;border-radius:999px;background:radial-gradient(130% 90% at 0% 0%,color-mix(in srgb,var(--text) 22%,transparent),transparent 55%),linear-gradient(135deg,var(--gl-bg),var(--gl-bg2));-webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);border:1px solid var(--gl-br);box-shadow:inset 0 1px 0 var(--gl-hi),inset 0 -1px 0 var(--gl-lo),0 10px 30px var(--gl-sh)}
+.sb-pill{position:absolute;top:5px;bottom:5px;left:0;width:0;border-radius:999px;pointer-events:none;background:linear-gradient(180deg,color-mix(in srgb,var(--text) 30%,transparent),color-mix(in srgb,var(--text) 10%,transparent));box-shadow:inset 0 1px 0 var(--gl-hi),0 4px 16px var(--glowc);transition:transform .5s cubic-bezier(.34,1.45,.5,1),width .5s cubic-bezier(.34,1.45,.5,1)}
+.sb-btn{position:relative;z-index:1;flex:1 1 0;min-width:0;height:42px;border:0;background:none;color:var(--mute);font:inherit;font-weight:800;font-size:15px;border-radius:999px;cursor:pointer;transition:color .3s,transform .2s cubic-bezier(.3,1.5,.5,1)}
+.sb-btn:active{transform:scale(.92)}
+.sb-btn.on{color:var(--green)}
+.sv{display:none}
+.sv.on{display:block}
+.sv.pg-out-l,.sv.pg-out-r{display:block;position:absolute;left:16px;right:16px;top:22px;pointer-events:none}
+.go.sm{display:inline-block;width:auto;margin:0;padding:9px 16px;font-size:14px;border-radius:12px;white-space:nowrap}
+.tk-timer{text-align:center;font-weight:800;color:var(--gold);margin:0 0 12px}
+.tk-list{display:grid;gap:10px}
+.tk-row{display:flex;gap:10px;align-items:center;padding:12px;border-radius:16px;background:linear-gradient(135deg,var(--gl-bg),var(--gl-bg2));border:1px solid var(--gl-br);box-shadow:inset 0 1px 0 var(--gl-hi);transition:border-color .3s,opacity .3s}
+.tk-row.done{border-color:var(--green)}
+.tk-row.got{opacity:.55}
+.tk-main{flex:1;min-width:0}
+.tk-main b{display:block;font-size:15px;line-height:1.25}
+.tk-bar{height:6px;border-radius:99px;background:color-mix(in srgb,var(--text) 14%,transparent);margin:8px 0 4px;overflow:hidden}
+.tk-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green2),var(--green));border-radius:99px;transition:width .5s ease}
+.tk-main small{color:var(--mute)}
+.tk-side{display:grid;gap:6px;justify-items:end;text-align:right}
+.tk-rew{font-weight:800;color:var(--gold)}
+.tk-rew small{display:block;font-size:10px;color:var(--mute);font-weight:700}
+.tp-stage{position:relative;display:grid;place-items:center;margin:6px 0 16px;min-height:240px}
+.tp-btn{width:min(230px,68%);aspect-ratio:1;border-radius:50%;border:1px solid color-mix(in srgb,#fff 55%,transparent);background:radial-gradient(circle at 32% 28%,color-mix(in srgb,#fff 60%,var(--green)),var(--green) 45%,var(--green2));color:var(--onacc);font:inherit;font-weight:900;font-size:30px;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;box-shadow:inset 0 2px 0 rgba(255,255,255,.7),inset 0 -8px 18px rgba(0,0,0,.18),0 14px 40px var(--glowc);transition:transform .09s ease,box-shadow .2s,filter .3s}
+.tp-btn:active,.tp-btn.hit{transform:scale(.94)}
+.tp-btn.dry{filter:grayscale(.65) brightness(.8)}
+.tp-pop{position:absolute;pointer-events:none;font-weight:900;font-size:22px;color:var(--gold);text-shadow:0 2px 8px rgba(0,0,0,.55);transform:translate(-50%,-50%);animation:tpup .9s ease-out forwards}
+@keyframes tpup{to{opacity:0;transform:translate(-50%,-170%)}}
+.tp-bar{position:relative;height:26px;border-radius:99px;overflow:hidden;background:color-mix(in srgb,var(--text) 12%,transparent);border:1px solid var(--gl-br);margin:0 0 16px}
+.tp-bar i{position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(90deg,var(--green2),var(--green));transition:width .2s linear}
+.tp-bar span{position:relative;display:block;text-align:center;line-height:24px;font-weight:800;font-size:13px}
+.tp-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;margin-bottom:10px;border-radius:16px;background:linear-gradient(135deg,var(--gl-bg),var(--gl-bg2));border:1px solid var(--gl-br);box-shadow:inset 0 1px 0 var(--gl-hi);line-height:1.35}
+.tp-row div{min-width:0;font-size:14px}
+.tp-row b{font-size:17px;color:var(--gold)}
+@media (prefers-reduced-motion:reduce){.sb-pill{transition-duration:.01s}.tp-pop{animation-duration:.01s}}
 </style>
 </head>
 <body>
@@ -611,13 +648,35 @@ body.ios-app-active .hotbar {
   </div>
 </section>
 <section class="page" id="ckOv">
+  <div class="subbar" id="subbar">
+    <span class="sb-pill" id="sbPill"></span>
+    <button class="sb-btn on" data-sub="check" type="button">Чекап</button>
+    <button class="sb-btn" data-sub="tasks" type="button">Задания</button>
+    <button class="sb-btn" data-sub="tap" type="button">Тапалка</button>
+  </div>
   <div class="modal" role="dialog" aria-label="Чекап" style="width:min(520px,100%)">
     <button class="x" id="closeCk" aria-label="Закрыть">×</button>
+    <div class="sv on" id="svCheck">
     <h2>Чекап</h2>
     <p class="ck-note">Заходи каждый день. Дни 1–6: по 100 Бурмалдакойнов, день 7: 1 000. Пропустишь день — серия начнётся с первого. Новый день начинается в 00:00 по Москве.</p>
     <div class="ck-days" id="ckDays"></div>
     <button class="go" id="ckGo">Забрать</button>
-    <div class="err" id="ckMsg"></div>
+    <div class="err" id="ckMsg"></div></div>
+    <div class="sv" id="svTasks">
+      <h2>Задания</h2>
+      <p class="ck-note">Засчитываются игры со ставкой от 10 Бурмалдакойнов. Невыполненные задания обновляются по таймеру.</p>
+      <div class="tk-timer" id="tkTimer"></div>
+      <div class="tk-list" id="tkList"></div>
+      <div class="err" id="tkMsg"></div>
+    </div>
+    <div class="sv" id="svTap">
+      <h2>Тапалка</h2>
+      <div class="tp-stage" id="tpStage"><button type="button" class="tp-btn" id="tpBtn">Тапни!</button></div>
+      <div class="tp-bar"><i id="tpFill"></i><span id="tpEn">0 / 500</span></div>
+      <div class="tp-row"><div>Максимальное количество энергии: <b id="tpMax">500</b></div><button type="button" class="go sm" id="tpUpE">Улучшить</button></div>
+      <div class="tp-row"><div>Бурмалдакойнов за нажатие: <b id="tpPer">0,1</b></div><button type="button" class="go sm" id="tpUpP">Улучшить</button></div>
+      <div class="err" id="tpMsg"></div>
+    </div>
   </div>
 </section>
 </div>
@@ -726,6 +785,16 @@ body.ios-app-active .hotbar {
     <p class="sl-pay" id="boxInfo"></p>
     <button class="go" id="boxGo">Открыть</button>
     <div class="err" id="boxErr"></div>
+  </div>
+</div>
+
+<div class="overlay" id="tpUpOv">
+  <div class="modal" role="dialog" aria-label="Улучшение" style="width:min(420px,100%)">
+    <button class="x" id="closeTpUp" aria-label="Закрыть">×</button>
+    <h2 id="tpUpT">Улучшение</h2>
+    <p class="ck-note" id="tpUpD"></p>
+    <button class="go" id="tpUpGo">Купить</button>
+    <div class="err" id="tpUpMsg"></div>
   </div>
 </div>
 
@@ -1234,7 +1303,7 @@ $("delGo").onclick=async function(){
   }catch(x){m.textContent=dErr(x)}
   b.disabled=false;
 };
-function gameBusy(){return coBusy||ludBusy||slBusy||stRun||upBusy||boxBusy||shBusy}
+function gameBusy(){return coBusy||ludBusy||slBusy||stRun||upBusy||boxBusy||shBusy||tp.pend>0||tp.inflight}
 async function pollBal(){
   if(!sess||document.hidden||gameBusy())return;
   try{
@@ -1519,7 +1588,7 @@ function tabEnter(t){
   if(t==="top"){profView("top");topLoad()}
   else if(t==="shop"){profView("shop")}
   else if(t==="prof"){profView("menu")}
-  else if(t==="check"){$("ckMsg").textContent="";ckRender();ckRefresh().then(ckRender)}
+  else if(t==="check"){$("ckMsg").textContent="";ckRender();ckRefresh().then(ckRender);setTimeout(moveSubPill,40);if(curSub==="tasks")tkLoad();else if(curSub==="tap")tpLoad()}
 }
 function movePill(){
   var b=document.querySelector('.hb-btn[data-tab="'+curTab+'"]'),p=$("hbPill");
@@ -1533,7 +1602,7 @@ function cleanPages(){
   var ids=["pgHome","ckOv","profOv"],cur=pageOf(curTab);
   for(var i=0;i<ids.length;i++){var e=$(ids[i]);e.classList.remove("pg-out-l","pg-out-r");if(e!==cur)e.classList.remove("on")}
 }
-function goTab(t){
+function goTab(t){tpFlush();
   if(t===curTab){if(t!=="home")tabEnter(t);return}
   var from=pageOf(curTab),to=pageOf(t),dir=TABS.indexOf(t)>TABS.indexOf(curTab)?"r":"l";
   curTab=t;movePill();
@@ -1639,6 +1708,201 @@ function goTab(t){
   document.addEventListener("click", handleCardClick, true);
 })();
 
+/* ===== Chekap: podvkladki, Zadaniya, Tapalka ===== */
+var SUBS=["check","tasks","tap"],curSub="check",subTimer=null;
+function svOf(n){return $(n==="check"?"svCheck":n==="tasks"?"svTasks":"svTap")}
+function moveSubPill(){
+  var b=document.querySelector('.sb-btn[data-sub="'+curSub+'"]'),p=$("sbPill");
+  if(!b||!b.offsetWidth)return;
+  p.style.width=b.offsetWidth+"px";p.style.transform="translateX("+b.offsetLeft+"px)";
+  var all=document.querySelectorAll(".sb-btn");
+  for(var i=0;i<all.length;i++)all[i].classList.toggle("on",all[i]===b);
+}
+function cleanSv(){
+  var ids=["svCheck","svTasks","svTap"],cur=svOf(curSub);
+  for(var i=0;i<ids.length;i++){var e=$(ids[i]);e.classList.remove("pg-out-l","pg-out-r");if(e!==cur)e.classList.remove("on")}
+}
+function subEnter(n){
+  if(n==="check"){ckRender();ckRefresh().then(ckRender)}
+  else if(n==="tasks")tkLoad();
+  else tpLoad();
+}
+function goSub(n){
+  if(n===curSub){subEnter(n);return}
+  var from=svOf(curSub),to=svOf(n),dir=SUBS.indexOf(n)>SUBS.indexOf(curSub)?"r":"l";
+  if(curSub==="tap")tpFlush();
+  curSub=n;moveSubPill();
+  if(subTimer){clearTimeout(subTimer);subTimer=null;cleanSv()}
+  subEnter(n);
+  from.classList.remove("pg-in-r","pg-in-l");
+  from.classList.add(dir==="r"?"pg-out-l":"pg-out-r");
+  to.classList.add("on");animIn(to,dir);
+  subTimer=setTimeout(function(){subTimer=null;cleanSv()},240);
+}
+(function(){
+  var sb=document.querySelectorAll(".sb-btn");
+  for(var i=0;i<sb.length;i++){(function(b){b.onclick=function(){goSub(b.getAttribute("data-sub"))}})(sb[i])}
+  window.addEventListener("resize",moveSubPill);
+})();
+
+/* --- Zadaniya --- */
+var tk={tasks:[],left:0,at:0,loaded:false,busy:false};
+function tkSecs(){return Math.max(0,Math.ceil(tk.left-(performance.now()-tk.at)/1000))}
+function tkClock(){
+  var el=$("tkTimer");
+  if(!sess||!tk.loaded){el.textContent="";return}
+  var s=tkSecs(),m=Math.floor(s/60),r=s%60,done=tk.tasks.length>0;
+  for(var i=0;i<tk.tasks.length;i++)if(tk.tasks[i].progress<tk.tasks[i].need)done=false;
+  el.textContent=(done?"Все задания выполнены! ":"")+"Новые задания через "+(m<10?"0":"")+m+":"+(r<10?"0":"")+r;
+  if(s<=0&&!tk.busy&&curTab==="check"&&curSub==="tasks"){tk.busy=true;tkLoad().then(function(){tk.busy=false})}
+}
+async function tkLoad(){
+  if(!sess){tk.loaded=false;tkRender();return}
+  try{
+    var r=await rpc("tasks_status",{});
+    tk.tasks=r.tasks;tk.left=+r.left;tk.at=performance.now();tk.loaded=true;
+    $("tkMsg").textContent="";
+  }catch(e){$("tkMsg").style.color="";$("tkMsg").textContent=gErr(e)}
+  tkRender();
+}
+function tkRender(){
+  var l=$("tkList");l.innerHTML="";
+  if(!sess){l.innerHTML='<div class="ck-note">Войди в аккаунт, чтобы получать задания</div>';tkClock();return}
+  for(var i=0;i<tk.tasks.length;i++){
+    (function(i){
+      var t=tk.tasks[i],pr=Math.min(t.need,t.progress),done=pr>=t.need;
+      var d=document.createElement("div");
+      d.className="tk-row"+(done?" done":"")+(t.claimed?" got":"");
+      d.innerHTML='<div class="tk-main"><b></b><div class="tk-bar"><i></i></div><small></small></div><div class="tk-side"><div class="tk-rew"></div></div>';
+      d.querySelector("b").textContent=t.text;
+      d.querySelector(".tk-bar i").style.width=Math.round(pr/t.need*100)+"%";
+      d.querySelector("small").textContent=pr+" / "+t.need;
+      d.querySelector(".tk-rew").innerHTML="+"+numTxt(t.reward)+" <small>"+dimWord(t.reward)+"</small>";
+      var side=d.querySelector(".tk-side");
+      if(done&&!t.claimed){
+        var b=document.createElement("button");b.type="button";b.className="go sm";b.textContent="Забрать";
+        b.onclick=function(){tkClaim(i,b)};side.appendChild(b);
+      }else if(t.claimed){
+        var g=document.createElement("small");g.style.color="var(--mute)";g.textContent="Получено";side.appendChild(g);
+      }
+      l.appendChild(d);
+    })(i);
+  }
+  tkClock();
+}
+async function tkClaim(i,btn){
+  var m=$("tkMsg");btn.disabled=true;m.style.color="";m.textContent="";
+  try{
+    var r=await rpc("tasks_claim",{idx:i});
+    balance=+r.balance;setBal();tk.tasks[i].claimed=true;
+    m.style.color="var(--green)";m.textContent="Получено: "+fmt(+r.reward);
+  }catch(e){
+    var t=String(e&&e.message||e);
+    m.textContent=/already/.test(t)?"Эту награду уже забрали":/not done/.test(t)?"Задание ещё не выполнено":gErr(e);
+    tkLoad();
+  }
+  tkRender();
+}
+setInterval(function(){if(curTab==="check"&&curSub==="tasks")tkClock()},1000);
+
+/* --- Tapalka --- */
+var tp={en:0,mx:500,cpt:0.1,el:1,cl:1,ep:100,cp:100,t0:0,pend:0,inflight:false,loaded:false,timer:null};
+function tpEn(){return Math.min(tp.mx,tp.en+(performance.now()-tp.t0)/1000)}
+function tpApply(r){
+  tp.mx=+r.max;tp.cpt=+r.per_tap;
+  if(r.e_level!=null){tp.el=+r.e_level;tp.cl=+r.c_level;tp.ep=+r.e_price;tp.cp=+r.c_price}
+}
+function tpDraw(){
+  var en=tpEn();
+  $("tpFill").style.width=Math.max(0,Math.min(100,en/tp.mx*100))+"%";
+  $("tpEn").textContent=numTxt(Math.floor(en))+" / "+numTxt(tp.mx);
+  $("tpMax").textContent=numTxt(tp.mx);
+  $("tpPer").textContent=numTxt(tp.cpt);
+  $("tpBtn").classList.toggle("dry",en<1);
+}
+async function tpLoad(){
+  if(!sess){tp.loaded=false;$("tpMsg").style.color="";$("tpMsg").textContent="Войди в аккаунт, чтобы тапать";return}
+  try{
+    var r=await rpc("tap_status",{});
+    tpApply(r);tp.en=+r.energy-tp.pend;if(tp.en<0)tp.en=0;tp.t0=performance.now();tp.loaded=true;
+    if(!gameBusy()){balance=+r.balance;setBal()}
+    $("tpMsg").textContent="";
+  }catch(e){$("tpMsg").style.color="";$("tpMsg").textContent=gErr(e)}
+  tpDraw();
+}
+function tpPop(x,y,txt){
+  var f=document.createElement("span");f.className="tp-pop";f.textContent=txt;
+  f.style.left=x+"px";f.style.top=y+"px";$("tpStage").appendChild(f);
+  setTimeout(function(){if(f.parentNode)f.parentNode.removeChild(f)},900);
+}
+function tpTap(e){
+  if(!sess||!tp.loaded)return;
+  var en=tpEn(),b=$("tpBtn");
+  if(en<1){tpDraw();return}
+  tp.en=en-1;tp.t0=performance.now();tp.pend++;
+  balance+=tp.cpt;setBal();
+  var r=$("tpStage").getBoundingClientRect(),x=e&&e.clientX?e.clientX-r.left:r.width/2,y=e&&e.clientY?e.clientY-r.top:r.height/2;
+  tpPop(x,y,"+"+numTxt(tp.cpt));
+  b.classList.add("hit");setTimeout(function(){b.classList.remove("hit")},70);
+  tpDraw();
+  if(!tp.timer)tp.timer=setTimeout(tpFlush,700);
+}
+async function tpFlush(){
+  if(tp.timer){clearTimeout(tp.timer);tp.timer=null}
+  if(!sess||tp.inflight||tp.pend<=0)return;
+  var n=tp.pend;tp.pend=0;tp.inflight=true;
+  try{
+    var r=await rpc("tap",{n:n});
+    tpApply(r);
+    tp.en=Math.max(0,+r.energy-tp.pend);tp.t0=performance.now();
+    balance=Math.round((+r.balance+tp.pend*tp.cpt)*100)/100;setBal();
+  }catch(e){
+    tp.pend=0;$("tpMsg").style.color="";$("tpMsg").textContent=gErr(e);
+    tp.inflight=false;tpLoad();return;
+  }
+  tp.inflight=false;tpDraw();
+  if(tp.pend>0&&!tp.timer)tp.timer=setTimeout(tpFlush,300);
+}
+(function(){
+  var b=$("tpBtn");
+  b.addEventListener("pointerdown",function(e){e.preventDefault();tpTap(e)});
+  b.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();tpTap(null)}});
+  b.addEventListener("contextmenu",function(e){e.preventDefault()});
+})();
+setInterval(function(){if(curTab==="check"&&curSub==="tap")tpDraw()},250);
+document.addEventListener("visibilitychange",function(){if(document.hidden)tpFlush()});
+/* uluchsheniya */
+var tpUp=null;
+function tpUpDraw(){
+  var e=tpUp==="energy",lvl=e?tp.el+1:tp.cl+1,price=e?tp.ep:tp.cp;
+  $("tpUpT").textContent=e?"Улучшение: энергия":"Улучшение: сила нажатия";
+  $("tpUpD").textContent=e
+    ?"Уровень "+lvl+": максимум энергии "+numTxt(tp.mx)+" → "+numTxt(tp.mx+100)
+    :"Уровень "+lvl+": за нажатие "+numTxt(tp.cpt)+" → "+numTxt(Math.round((tp.cpt+0.1)*100)/100);
+  $("tpUpGo").textContent="Купить за "+fmt(price);
+}
+function tpUpOpen(kind){
+  if(!sess){$("tpMsg").style.color="";$("tpMsg").textContent="Войди в аккаунт, чтобы улучшать";return}
+  tpUp=kind;tpUpDraw();$("tpUpMsg").style.color="";$("tpUpMsg").textContent="";
+  $("tpUpOv").classList.add("open");
+}
+function tpUpClose(){$("tpUpOv").classList.remove("open")}
+$("tpUpE").onclick=function(){tpUpOpen("energy")};
+$("tpUpP").onclick=function(){tpUpOpen("power")};
+$("closeTpUp").onclick=tpUpClose;
+$("tpUpOv").addEventListener("click",function(e){if(e.target===this)tpUpClose()});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")tpUpClose()});
+$("tpUpGo").onclick=async function(){
+  var b=this,m=$("tpUpMsg");b.disabled=true;m.style.color="";m.textContent="";
+  try{
+    await tpFlush();
+    var r=await rpc("tap_upgrade",{kind:tpUp});
+    tpApply(r);tp.en=Math.min(+r.energy,tp.mx);tp.t0=performance.now();
+    balance=+r.balance;setBal();tpUpDraw();tpDraw();
+    m.style.color="var(--green)";m.textContent="Улучшено!";
+  }catch(e){m.textContent=gErr(e)}
+  b.disabled=false;
+};
 </script>
 </body>
 </html>
