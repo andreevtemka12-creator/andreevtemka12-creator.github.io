@@ -943,11 +943,15 @@ function sfetchOnce(url,o,ms){
     throw e;
   });
 }
+var SAFE_RE=/\/rpc\/(tap_status|tasks_status|checkin_status|stunt_poll|admin_check|admin_lookup)\b|\/auth\/v1\/token/;
 function sfetch(url,o){
   o=o||{};
-  var viaGw=SB===GATEWAY&&url.indexOf(GATEWAY)===0;
+  var viaGw=SB===GATEWAY&&url.indexOf(GATEWAY)===0,method=(o.method||"GET").toUpperCase();
+  var safe=method==="GET"||method==="HEAD"||SAFE_RE.test(url);
   return sfetchOnce(url,o,viaGw?9000:15000).catch(function(e){
-    if(viaGw){SB=DIRECT;return sfetchOnce(DIRECT+url.slice(GATEWAY.length),o,15000).catch(function(e2){netBar(true);throw e2})}
+    if(viaGw&&safe){
+      return sfetchOnce(DIRECT+url.slice(GATEWAY.length),o,15000).then(function(r){SB=DIRECT;return r},function(e2){netBar(true);throw e2});
+    }
     netBar(true);throw e;
   });
 }
@@ -1905,8 +1909,8 @@ function tpPrice(L){return 200*L-100}
 function tpUpDraw(){
   var e=tpUp==="energy",cur=e?tp.el:tp.cl,l=$("tpUpList");l.innerHTML="";
   $("tpUpT").textContent=e?"Улучшение энергии":"Улучшение силы нажатия";
-  $("tpUpBal").innerHTML="Баланс: <b>"+fmt(balance)+"</b>";
-  for(var L=cur;L<=cur+5;L++){
+  $("tpUpBal").innerHTML="Баланс: <b>"+fmt(balance)+"</b><br>Твой уровень: <b>"+cur+"</b>";
+  for(var L=cur;L<=cur+3;L++){
     (function(L){
       var have=L<=cur,next=L===cur+1;
       var val=e?numTxt(500+100*(L-1))+" энергии":numTxt(Math.round(L*10)/100)+" за нажатие";
